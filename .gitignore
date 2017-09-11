@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -99,3 +100,14 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# PyCharm conf
+.idea/
+
+# Migrations
+migrations/
+
+# Database
+mac_logging.db
+
+input.txt

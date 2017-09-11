@@ -1,0 +1,8 @@
+flask-bootstrap
+flask-nav
+flask-debug
+flask-wtf
+sqlalchemy==1.1.14
+flask_sqlalchemy
+flask_script
+flask_migrate
