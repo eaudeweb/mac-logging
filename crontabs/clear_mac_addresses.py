@@ -4,7 +4,7 @@ import sqlite3
 
 
 def connect_to_db():
-    return sqlite3.connect("/home/catalin/Workspace/mac-logging/mac_logging.db")
+    return sqlite3.connect("/var/local/pontaj/files/mac_logging.db")
 
 
 def clear_mac_addresses():

@@ -2,4 +2,4 @@
 Dockerfile
 docker-compose.yml
 input.txt
-mac_logging.db
+files/mac_logging.db

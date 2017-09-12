@@ -8,11 +8,11 @@ import time
 
 
 def connect_to_db():
-    return sqlite3.connect("/home/catalin/Workspace/mac-logging/mac_logging.db")
+    return sqlite3.connect("/var/local/pontaj/files/mac_logging.db")
 
 
 def parse():
-    infile = open("/home/catalin/Workspace/mac-logging/input.txt", "r")
+    infile = open("/var/local/pontaj/input.txt", "r")
     mac_addresses = []
     for line in iter(infile):
         values = line.split(' "')
@@ -24,7 +24,7 @@ def parse():
 
 
 def get_time():
-    date = time.ctime(os.path.getmtime("/home/catalin/Workspace/mac-logging/input.txt"))
+    date = time.ctime(os.path.getmtime("/var/local/pontaj/input.txt"))
     return datetime.strptime(date, "%a %b %d %H:%M:%S %Y")
 
 

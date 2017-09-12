@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python /home/catalin/Workspace/mac-logging/app.py
+python /var/local/pontaj/app.py

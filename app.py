@@ -12,7 +12,7 @@ from flask_migrate import Migrate
 # App config.
 DEBUG = True
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mac_logging.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///files/mac_logging.db'
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
 db = SQLAlchemy(app)
@@ -213,4 +213,5 @@ app.add_url_rule('/', view_func=IndexView.as_view('index'))
 
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
