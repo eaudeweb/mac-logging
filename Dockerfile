@@ -1,17 +1,13 @@
-FROM python:2.7-slim
+FROM python:2-alpine3.6
+MAINTAINER "Cătălin Jitea <catalin.jitea@eaudeweb.ro"
 
 ENV WORK_DIR=/var/local/mac-logging
-
-RUN runDeps="curl vim build-essential sqlite3 libsqlite3-dev" \
- && apt-get update \
- && apt-get install -y --no-install-recommends $runDeps \
- && rm -vrf /var/lib/apt/lists/*
+RUN runDeps="sqlite sqlite-dev" \
+    && apk add --no-cache $runDeps
 
 COPY requirements.txt $WORK_DIR/
 WORKDIR $WORK_DIR
 RUN pip install -r requirements.txt
 
 COPY . $WORK_DIR/
-RUN mv docker-entrypoint.sh /bin/
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
