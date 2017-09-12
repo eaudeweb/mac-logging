@@ -12,7 +12,7 @@ def connect_to_db():
 
 
 def parse():
-    infile = open("/var/local/pontaj/input.txt", "r")
+    infile = open("/var/local/pontaj/files/input.txt", "r")
     mac_addresses = []
     for line in iter(infile):
         values = line.split(' "')
@@ -24,7 +24,7 @@ def parse():
 
 
 def get_time():
-    date = time.ctime(os.path.getmtime("/var/local/pontaj/input.txt"))
+    date = time.ctime(os.path.getmtime("/var/local/pontaj/files/input.txt"))
     return datetime.strptime(date, "%a %b %d %H:%M:%S %Y")
 
 

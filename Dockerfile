@@ -2,7 +2,7 @@ FROM python:2-alpine3.6
 MAINTAINER "Cătălin Jitea <catalin.jitea@eaudeweb.ro"
 
 ENV WORK_DIR=/var/local/pontaj
-RUN runDeps="sqlite sqlite-dev" \
+RUN runDeps="net-snmp-tools sqlite sqlite-dev" \
     && apk add --no-cache $runDeps \
     && mkdir -p $WORK_DIR/files
 
