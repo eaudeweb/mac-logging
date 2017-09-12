@@ -1,5 +1,6 @@
 from flask import Flask, render_template, flash, request
 from flask.views import MethodView
+from raven.contrib.flask import Sentry
 from wtforms import Form, TextAreaField, SelectField, validators
 from database import init_db, db_session
 from models import PersonMac, MacAddress, Person
@@ -14,6 +15,7 @@ DEBUG = True
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///files/mac_logging.db'
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+sentry = Sentry(app, dsn='https://358997aaf37142e59a1b245aa1001f3d:42e732823c114ce9a79a3377d7fba3f1@sentry.io/216047')
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
