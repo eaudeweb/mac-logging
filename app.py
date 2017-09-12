@@ -90,8 +90,6 @@ class PersonAddView(MethodView):
 
         return render_template('add.html', form=form)
 
-app.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
-
 
 class PersonEditView(MethodView):
 
@@ -130,8 +128,6 @@ class PersonEditView(MethodView):
 
         return render_template('edit.html', form=form, person=person)
 
-app.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))
-
 
 class PersonListView(MethodView):
 
@@ -139,8 +135,6 @@ class PersonListView(MethodView):
         persons = PersonMac.query.order_by(PersonMac.last_name)
 
         return render_template('people.html', persons=persons)
-
-app.add_url_rule('/people', view_func=PersonListView.as_view('people'))
 
 
 class PersonClockingView(MethodView):
@@ -194,15 +188,12 @@ class PersonClockingView(MethodView):
 
         return render_template('clocking.html', persons=persons)
 
-app.add_url_rule('/clocking', view_func=PersonClockingView.as_view('clocking'))
-
 
 class IndexView(MethodView):
 
     def get(self):
         return render_template('index.html')
 
-app.add_url_rule('/', view_func=IndexView.as_view('index'))
 
 @app.context_processor
 def utility_processor():
@@ -213,6 +204,13 @@ def utility_processor():
             return '-'
     return dict(get_enddate=get_enddate)
 
+
+app.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
+app.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))
+app.add_url_rule('/people', view_func=PersonListView.as_view('people'))
+app.add_url_rule('/clocking', view_func=PersonClockingView.as_view('clocking'))
+app.add_url_rule('/', view_func=IndexView.as_view('index'))
+
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)

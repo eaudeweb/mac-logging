@@ -16,4 +16,5 @@ def clear_mac_addresses():
 
     conn.close()
 
+
 clear_mac_addresses()

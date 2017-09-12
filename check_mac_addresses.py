@@ -7,7 +7,6 @@ import os.path
 import time
 
 
-
 def connect_to_db():
     return sqlite3.connect("/home/catalin/Workspace/mac-logging/mac_logging.db")
 
@@ -50,5 +49,6 @@ def check_insert_mac_addresses():
     conn.commit()
 
     conn.close()
+
 
 check_insert_mac_addresses()
