@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" media="screen" href="static/bootstrap.min.css">
+  <link rel="stylesheet" href="static/bootstrap-theme.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div class="container">
+  <h2>Inregistrare</h2>
+  <form class="form-horizontal" action="" method="post" role="form">
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="last_name">Nume*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="last_name" name="last_name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="first_name">Prenume*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="first_name"
+               name="first_name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="mac1">Adresa MAC 1*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="mac1" name="mac1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="mac2">Adresa MAC 2</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="mac2" name="mac2">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="mac1">Adresa MAC 3</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="mac3" name="mac3">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-success">Save</button>
+      </div>
+    </div>
+  </form>
+
+<blockquote>
+    <footer>Nota: Adresa MAC trebuie sa contina doar cifre si litere mari (A-F) si sa fie de forma: "FF FF FF FF FF"</footer>
+</blockquote>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+      {% for message in messages %}
+        {% if "Error" not in message[1]: %}
+          <div class="alert alert-info">
+            <strong>Success! </strong> {{ message[1] }}
+          </div>
+        {% endif %}
+
+        {% if "Error" in message[1]: %}
+          <div class="alert alert-warning">
+            {{ message[1] }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+</body>
+</html>

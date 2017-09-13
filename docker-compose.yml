@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+  app:
+    image: eaudeweb/mac-logging:2.3
+    container_name: pontaj.app
+    ports:
+    - "5000:5000"
+    env_file:
+    - ./docker/app.env
+    volumes:
+    - data:/var/local/pontaj/files
+
+  cronjobs:
+    image: eaudeweb/mac-logging:2.3
+    container_name: pontaj.cronjobs
+    volumes:
+    - data:/var/local/pontaj/files
+    entrypoint: ["./cronjobs-entrypoint.sh"]
+
+volumes:
+  data:
+    driver: local

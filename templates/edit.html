@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+  <h2>Editare</h2>
+  <form class="form-horizontal" action="" method="post" role="form">
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="last_name">Nume*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="last_name" name="last_name"
+               value="{{ person.last_name }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="first_name">Prenume*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="first_name"
+               name="first_name" value="{{ person.first_name }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="mac">Adresa MAC 1*</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="mac" name="mac"
+               value="{{ person.mac }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-success">Save Changes</button>
+      </div>
+    </div>
+  </form>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+      {% for message in messages %}
+        {% if "Error" not in message[1]: %}
+          <div class="alert alert-info">
+            <strong>Success! </strong> {{ message[1] }}
+          </div>
+        {% endif %}
+
+        {% if "Error" in message[1]: %}
+          <div class="alert alert-warning">
+            {{ message[1] }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+</body>
+</html>
