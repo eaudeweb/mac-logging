@@ -26,7 +26,7 @@ devices.
         $ docker-compose up -d
         $ docker-compose ps
 
-3. See it in action: [http://0.0.0.0:5000](http://0.0.0.0:5000)
+3. See it in action: [http://localhost:5000](http://localhost:5000)
 
 
 ### Upgrading the application
@@ -41,4 +41,26 @@ devices.
         $ docker-compose up -d
         $ docker-compose ps
 
-3. See it in action: [http://0.0.0.0:5000](http://0.0.0.0:5000)
+3. See it in action: [http://localhost:5000](http://localhost:5000)
+
+
+### Development instructions
+
+In the _docker-compose.dev.yml_, the project directory is mapped inside the _app_ service container. Make sure you set DEBUG=True in app.env to reload the changes. 
+
+* Start stack, all services should be "Up" :
+
+        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml ps
+
+* Check application logs:
+
+        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml logs -f app
+
+* When the image is modified you should update the stack:
+
+        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+* Delete the containers and the volumes with:
+
+        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
