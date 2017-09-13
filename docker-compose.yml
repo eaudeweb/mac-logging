@@ -3,7 +3,7 @@ version: '2'
 services:
 
   app:
-    image: eaudeweb/mac-logging:2.1
+    image: eaudeweb/mac-logging:2.2
     container_name: pontaj.app
     ports:
     - "5000:5000"
@@ -13,7 +13,7 @@ services:
     - data:/var/local/pontaj/files
 
   cronjobs:
-    image: eaudeweb/mac-logging:2.1
+    image: eaudeweb/mac-logging:2.2
     container_name: pontaj.cronjobs
     volumes:
     - data:/var/local/pontaj/files
