@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint
-from database import Base
+from flask.flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
-class MacAddress(Base):
+class MacAddress(db.Model):
     __tablename__ = 'mac_addresses'
     id = Column(Integer, primary_key=True, autoincrement=True)
     mac = Column(String(128), unique=True)
@@ -13,7 +14,8 @@ class MacAddress(Base):
         self.time = time
 
 
-class PersonMac(Base):
+class PersonMac(db.Model):
+    """ Person model """
     __tablename__ = 'persons_mac'
     id = Column(Integer, primary_key=True, autoincrement=True)
     mac = Column(String(128), unique=True)
@@ -26,7 +28,7 @@ class PersonMac(Base):
         self.mac = mac
 
 
-class Person(Base):
+class Person(db.Model):
     __tablename__ = 'persons'
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)

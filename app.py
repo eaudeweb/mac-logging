@@ -1,9 +1,7 @@
 from flask import Flask, render_template, flash, request
 from flask.views import MethodView
-from raven.contrib.flask import Sentry
 from wtforms import Form, TextAreaField, SelectField, validators
-from database import init_db, db_session
-from models import PersonMac, MacAddress, Person
+from models import db, PersonMac, MacAddress, Person
 from datetime import datetime, timedelta
 import re
 
@@ -11,13 +9,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 # App config.
-DEBUG = True
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///files/mac_logging.db'
-app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
-sentry = Sentry(app, dsn='https://358997aaf37142e59a1b245aa1001f3d:42e732823c114ce9a79a3377d7fba3f1@sentry.io/216047')
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_pyfile('settings.py', silent=True)
 
-db = SQLAlchemy(app)
+if app.config.get('SENTRY_DSN'):
+    from raven.contrib.flask import Sentry
+    Sentry(app)
+
+db.init_app(app)
 migrate = Migrate(app, db)
 
 
@@ -76,13 +75,13 @@ class PersonAddView(MethodView):
             if form.is_mac_address_valid(macs):
                 for mac in macs:
                     person_mac = PersonMac(last_name, first_name, mac)
-                    db_session.add(person_mac)
+                    db.session.add(person_mac)
 
                 try:
-                    db_session.commit()
+                    db.session.commit()
                     flash('Thanks for registration.')
                 except:
-                    db_session.rollback()
+                    db.session.rollback()
                     flash('Error: Registration failed. '
                           'Possibly MAC address already exists.')
             else:
@@ -96,12 +95,12 @@ class PersonAddView(MethodView):
 class PersonEditView(MethodView):
 
     def get(self, person_id):
-        person = db_session.query(PersonMac).get(person_id)
+        person = db.session.query(PersonMac).get(person_id)
         form = EditForm()
         return render_template('edit.html', form=form, person=person)
 
     def post(self, person_id):
-        person = db_session.query(PersonMac).get(person_id)
+        person = db.session.query(PersonMac).get(person_id)
         form = EditForm(request.form)
         last_name = request.form['last_name']
         first_name = request.form['first_name']
@@ -112,15 +111,15 @@ class PersonEditView(MethodView):
         if form.validate():
             if form.is_mac_address_valid(macs):
                 data = {
-                        "last_name": last_name,
-                        "first_name": first_name,
-                        "mac": mac
-                       }
+                    "last_name": last_name,
+                    "first_name": first_name,
+                    "mac": mac
+                    }
                 try:
-                    db_session.query(PersonMac).filter_by(id=person_id).update(data)
+                    db.session.query(PersonMac).filter_by(id=person_id).update(data)
                     flash('Thanks for editing.')
                 except:
-                    db_session.rollback()
+                    db.session.rollback()
                     flash('Error: Editing failed. '
                           'Possibly MAC address already exists.')
             else:
@@ -150,12 +149,12 @@ class PersonClockingView(MethodView):
                 startdate = mac_address.time
                 enddate = startdate
                 enddate += timedelta(hours=8)
-                db_session.add(Person(person_mac.last_name, person_mac.first_name,
+                db.session.add(Person(person_mac.last_name, person_mac.first_name,
                                       startdate, enddate))
                 try:
-                    db_session.commit()
+                    db.session.commit()
                 except:
-                    db_session.rollback()
+                    db.session.rollback()
 
     def get_persons(self, days):
         date1 = datetime(datetime.now().year, datetime.now().month, datetime.now().day)
@@ -215,5 +214,6 @@ app.add_url_rule('/', view_func=IndexView.as_view('index'))
 
 
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    with app.app_context():
+        db.create_all()
+        app.run(debug=True, host='0.0.0.0', port=5000)
