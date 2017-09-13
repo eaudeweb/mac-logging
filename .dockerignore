@@ -4,3 +4,4 @@ docker-compose.yml
 input.txt
 files/mac_logging.db
 .vscode
+*.env
