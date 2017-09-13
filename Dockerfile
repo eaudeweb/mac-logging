@@ -1,9 +1,11 @@
 FROM python:2-alpine3.6
 MAINTAINER "Cătălin Jitea <catalin.jitea@eaudeweb.ro"
 
-ENV WORK_DIR=/var/local/pontaj
-RUN runDeps="net-snmp-tools sqlite sqlite-dev" \
-    && apk add --no-cache $runDeps \
+ENV WORK_DIR=/var/local/pontaj \
+    TZ=Europe/Bucharest
+
+RUN runDeps="tzdata net-snmp-tools sqlite sqlite-dev" \
+    && apk add -U --no-cache $runDeps \
     && mkdir -p $WORK_DIR/files
 
 COPY requirements.txt $WORK_DIR/

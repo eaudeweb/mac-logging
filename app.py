@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, render_template, flash, request
 from flask.views import MethodView
 from wtforms import Form, TextAreaField, SelectField, validators
@@ -33,21 +35,21 @@ class BaseForm(Form):
 class AddForm(BaseForm):
     last_name = TextAreaField('Nume*', validators=[validators.required()])
     first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac1 = TextAreaField('Adresa MAC 1*', validators=[validators.required()])
-    mac2 = TextAreaField('Adresa MAC 2')
-    mac3 = TextAreaField('Adresa MAC 3')
+    mac1 = TextAreaField('Adresă MAC 1*', validators=[validators.required()])
+    mac2 = TextAreaField('Adresă MAC 2')
+    mac3 = TextAreaField('Adresă MAC 3')
 
 
 class EditForm(BaseForm):
     last_name = TextAreaField('Nume*', validators=[validators.required()])
     first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac = TextAreaField('Adresa MAC 1*', validators=[validators.required()])
+    mac = TextAreaField('Adresă MAC 1*', validators=[validators.required()])
 
 
 class SelectForm(Form):
     days = SelectField(
         'Pontaj',
-        choices=['Astazi', 'Saptamana curenta', 'Luna curenta']
+        choices=['Astăzi', 'Săptămâna curentă', 'Luna curentă']
     )
 
 
@@ -160,15 +162,15 @@ class PersonClockingView(MethodView):
         date1 = datetime(datetime.now().year, datetime.now().month, datetime.now().day)
         date2 = date1 + timedelta(hours=23, minutes=59, seconds=59)
 
-        if days == 'Astazi':
+        if days == 'Astăzi':
             return Person.query.filter(
                 Person.startdate.between(date1, date2)).order_by(Person.startdate)
-        elif days == 'Saptamana curenta':
+        elif days == 'Săptămâna curentă':
             while date1.weekday() != 0:
                 date1 -= timedelta(days=1)
             return Person.query.filter(
                 Person.startdate.between(date1, date2)).order_by(Person.startdate)
-        elif days == 'Luna curenta':
+        elif days == 'Luna curentă':
             while date1.day != 1:
                 date1 -= timedelta(days=1)
             return Person.query.filter(
@@ -208,7 +210,7 @@ def utility_processor():
 
 @app.route('/crashme')
 def crashme():
-    raise RuntimeError("Crashing as requested")
+    raise RuntimeError("Crashing as requested by you")
 
 app.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
 app.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))

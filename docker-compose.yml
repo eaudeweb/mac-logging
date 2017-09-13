@@ -7,6 +7,8 @@ services:
     container_name: pontaj.app
     ports:
     - "5000:5000"
+    env_file:
+    - ./docker/app.env
     volumes:
     - data:/var/local/pontaj/files
 
