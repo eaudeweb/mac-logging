@@ -206,6 +206,10 @@ def utility_processor():
     return dict(get_enddate=get_enddate)
 
 
+@app.route('/crashme')
+def crashme():
+    raise RuntimeError("Crashing as requested")
+
 app.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
 app.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))
 app.add_url_rule('/people', view_func=PersonListView.as_view('people'))
