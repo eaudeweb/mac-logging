@@ -1,14 +1,28 @@
-#!/usr/bin/env python
-
 import datetime
-import sqlite3
-from datetime import datetime
 import os.path
 import time
+import sqlite3
+from flask_script import Manager
+from datetime import datetime
+
+from app import app
+
+manager = Manager(app)
 
 
 def connect_to_db():
     return sqlite3.connect("/var/local/pontaj/files/mac_logging.db")
+
+
+@manager.command
+def clear_mac_addresses():
+    conn = connect_to_db()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM mac_addresses")
+    conn.commit()
+
+    conn.close()
 
 
 def parse():
@@ -28,7 +42,11 @@ def get_time():
     return datetime.strptime(date, "%a %b %d %H:%M:%S %Y")
 
 
+@manager.command
 def check_insert_mac_addresses():
+
+    print('Hello from check!')
+
     conn = connect_to_db()
     c = conn.cursor()
 
@@ -51,4 +69,5 @@ def check_insert_mac_addresses():
     conn.close()
 
 
-check_insert_mac_addresses()
+if __name__ == "__main__":
+    manager.run()
