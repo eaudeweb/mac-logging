@@ -4,6 +4,11 @@ MAC Logging application is developed in order to provide a tool to detect when
 people come and go from work, depending on MAC addresses of their personal
 devices.
 
+[![Travis](https://travis-ci.org/eaudeweb/mac-logging.svg?branch=master)](https://travis-ci.org/eaudeweb/mac-logging.svg)
+[![Coverage](https://coveralls.io/repos/github/eaudeweb/mac-logging.svg/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/mac-logging.svg?branch=master)
+[![Docker]( https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mac-loggin)](https://hub.docker.com/r/eaudeweb/mac-logging/builds)
+
+
 ### Prerequisites
 
 1. Install [Docker](https://docs.docker.com/engine/installation/)
