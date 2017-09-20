@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 install: pip install -r requirements-dev.txt
-script: py.test --cov=instance tests
+script: py.test --cov=. tests
 after_success: coveralls
 notifications:
   email:

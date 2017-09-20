@@ -6,7 +6,7 @@ devices.
 
 [![Travis](https://travis-ci.org/eaudeweb/mac-logging.svg?branch=master)](https://travis-ci.org/eaudeweb/mac-logging.svg)
 [![Coverage](https://coveralls.io/repos/github/eaudeweb/mac-logging.svg/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/mac-logging.svg?branch=master)
-[![Docker]( https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mac-loggin)](https://hub.docker.com/r/eaudeweb/mac-logging/builds)
+[![Docker](https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mac-loggin)](https://hub.docker.com/r/eaudeweb/mac-logging/builds)
 
 
 ### Prerequisites
