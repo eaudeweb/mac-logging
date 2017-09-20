@@ -1,0 +1,4 @@
+-r requirements.txt
+
+pytest-cov==1.8.1
+coveralls==0.5

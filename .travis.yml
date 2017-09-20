@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+install: pip install -r requirements-dev.txt && apk add libxslt-dev libffi-dev gcc
+script: py.test --cov=instance tests
+after_success: coverals
+notifications:
+  email:
+    recipients:
+      - purepython@eaudeweb.ro
