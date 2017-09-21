@@ -5,7 +5,7 @@ people come and go from work, depending on MAC addresses of their personal
 devices.
 
 [![Travis](https://travis-ci.org/eaudeweb/mac-logging.svg?branch=master)](https://travis-ci.org/eaudeweb/mac-logging.svg)
-[![Coverage](https://coveralls.io/repos/github/eaudeweb/mac-logging.svg/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/mac-logging.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/eaudeweb/mac-logging/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/mac-logging?branch=master)
 [![Docker](https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mac-logging)](https://hub.docker.com/r/eaudeweb/mac-logging/builds)
 
 
