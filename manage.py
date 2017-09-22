@@ -1,13 +1,19 @@
+#!/usr/bin/env python
+
 import datetime
 import os.path
-import time
 import sqlite3
-from flask_script import Manager
+import time
 from datetime import datetime
 
-from app import app
+from flask_script import Manager
+
+from clocking.app import app
+from clocking.models import db
+
 
 manager = Manager(app)
+db_manager = Manager()
 
 
 def connect_to_db():
@@ -68,6 +74,7 @@ def check_insert_mac_addresses():
 
     conn.close()
 
-
 if __name__ == "__main__":
-    manager.run()
+    with app.app_context():
+        db.create_all()
+        manager.run()

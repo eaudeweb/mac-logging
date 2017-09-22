@@ -109,6 +109,6 @@ migrations/
 # Database
 files/mac_logging.db
 
-input.txt
+files/input.txt
 .vscode
 *.env

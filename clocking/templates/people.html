@@ -12,11 +12,11 @@
   <h1>Oameni</h1>
   <ul class="list-group">
     {% for person in persons %}
-      <li class="list-group-item"><a href="{{ url_for('edit', person_id=person.id) }}">{{ person.last_name }} {{ person.first_name }}</a> ---> {{ person.mac }}</li>
+      <li class="list-group-item"><a href="{{ url_for('api.edit', person_id=person.id) }}">{{ person.last_name }} {{ person.first_name }}</a> ---> {{ person.mac }}</li>
     {% endfor %}
   </ul>
 
-  <a href="{{ url_for('add') }}">
+  <a href="{{ url_for('api.add') }}">
     <button type="button" class="btn btn-success">Add</button>
   </a>
 </div>
