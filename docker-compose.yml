@@ -6,7 +6,7 @@ services:
     image: eaudeweb/mac-logging:2.3
     container_name: pontaj.app
     ports:
-    - "5000:5000"
+    - "127.0.0.0.1:5000:5000"
     env_file:
     - ./docker/app.env
     volumes:
