@@ -26,7 +26,7 @@ class BaseForm(Form):
     def is_mac_address_valid(self, macs):
         """Validate the MAC addresses using a regex."""
         for mac in macs:
-            if not re.match("[0-9A-F]{2}([ ])[0-9A-F]{2}(\\1[0-9A-F]{2}){4}$",
+            if not re.match("[0-9A-Fa-f]{2}([ :])[0-9A-Fa-f]{2}(\\1[0-9A-Fa-f]{2}){4}$",
                             mac):
                 return False
         return True
@@ -52,8 +52,11 @@ class SelectForm(Form):
         choices=['Astăzi', 'Săptămâna curentă', 'Luna curentă']
     )
 
+class BaseView(MethodView):
+    def convert_mac_format(self, mac):
+        return mac.replace(':', ' ').upper()
 
-class PersonAddView(MethodView):
+class PersonAddView(BaseView):
 
     def get(self):
         form = AddForm()
@@ -76,6 +79,7 @@ class PersonAddView(MethodView):
         if form.validate():
             if form.is_mac_address_valid(macs):
                 for mac in macs:
+                    mac = self.convert_mac_format(mac)
                     person_mac = PersonMac(last_name, first_name, mac)
                     db.session.add(person_mac)
 
@@ -94,7 +98,7 @@ class PersonAddView(MethodView):
         return render_template('add.html', form=form)
 
 
-class PersonEditView(MethodView):
+class PersonEditView(BaseView):
 
     def get(self, person_id):
         person = db.session.query(PersonMac).get(person_id)
@@ -108,6 +112,7 @@ class PersonEditView(MethodView):
         first_name = request.form['first_name']
         macs = []
         mac = request.form['mac']
+        mac = self.convert_mac_format(mac)
         macs.append(mac)
 
         if form.validate():
