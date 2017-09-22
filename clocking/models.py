@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 class MacAddress(db.Model):
     __tablename__ = 'mac_addresses'
     id = Column(Integer, primary_key=True, autoincrement=True)

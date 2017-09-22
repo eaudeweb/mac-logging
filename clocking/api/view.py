@@ -1,60 +1,16 @@
-# -*- coding: utf-8 -*-
+from datetime import timedelta, datetime
 
-from flask import Flask, render_template, flash, request
+from flask import render_template, request, flash
 from flask.views import MethodView
-from wtforms import Form, TextAreaField, SelectField, validators
-from models import db, PersonMac, MacAddress, Person
-from datetime import datetime, timedelta
-import re
 
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from clocking.models import PersonMac, Person, MacAddress, db
+from clocking.api.forms import AddForm, EditForm, SelectForm
 
-# App config.
-app = Flask(__name__, instance_relative_config=True)
-app.config.from_pyfile('settings.py', silent=True)
-
-if app.config.get('SENTRY_DSN'):
-    from raven.contrib.flask import Sentry
-    Sentry(app)
-
-db.init_app(app)
-migrate = Migrate(app, db)
-
-
-class BaseForm(Form):
-    def is_mac_address_valid(self, macs):
-        """Validate the MAC addresses using a regex."""
-        for mac in macs:
-            if not re.match("[0-9A-Fa-f]{2}([ :])[0-9A-Fa-f]{2}(\\1[0-9A-Fa-f]{2}){4}$",
-                            mac):
-                return False
-        return True
-
-
-class AddForm(BaseForm):
-    last_name = TextAreaField('Nume*', validators=[validators.required()])
-    first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac1 = TextAreaField('Adresă MAC 1*', validators=[validators.required()])
-    mac2 = TextAreaField('Adresă MAC 2')
-    mac3 = TextAreaField('Adresă MAC 3')
-
-
-class EditForm(BaseForm):
-    last_name = TextAreaField('Nume*', validators=[validators.required()])
-    first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac = TextAreaField('Adresă MAC 1*', validators=[validators.required()])
-
-
-class SelectForm(Form):
-    days = SelectField(
-        'Pontaj',
-        choices=['Astăzi', 'Săptămâna curentă', 'Luna curentă']
-    )
 
 class BaseView(MethodView):
     def convert_mac_format(self, mac):
         return mac.replace(':', ' ').upper()
+
 
 class PersonAddView(BaseView):
 
@@ -82,7 +38,6 @@ class PersonAddView(BaseView):
                     mac = self.convert_mac_format(mac)
                     person_mac = PersonMac(last_name, first_name, mac)
                     db.session.add(person_mac)
-
                 try:
                     db.session.commit()
                     flash('Thanks for registration.')
@@ -123,6 +78,7 @@ class PersonEditView(BaseView):
                     "mac": mac
                     }
                 try:
+                    flash(data)
                     db.session.query(PersonMac).filter_by(id=person_id).update(data)
                     flash('Thanks for editing.')
                 except:
@@ -167,15 +123,15 @@ class PersonClockingView(MethodView):
         date1 = datetime(datetime.now().year, datetime.now().month, datetime.now().day)
         date2 = date1 + timedelta(hours=23, minutes=59, seconds=59)
 
-        if days == 'Astăzi':
+        if days == 'Astazi':
             return Person.query.filter(
                 Person.startdate.between(date1, date2)).order_by(Person.startdate)
-        elif days == 'Săptămâna curentă':
+        elif days == 'Saptamana curenta':
             while date1.weekday() != 0:
                 date1 -= timedelta(days=1)
             return Person.query.filter(
                 Person.startdate.between(date1, date2)).order_by(Person.startdate)
-        elif days == 'Luna curentă':
+        elif days == 'Luna curenta':
             while date1.day != 1:
                 date1 -= timedelta(days=1)
             return Person.query.filter(
@@ -201,30 +157,3 @@ class IndexView(MethodView):
 
     def get(self):
         return render_template('index.html')
-
-
-@app.context_processor
-def utility_processor():
-    def get_enddate(enddate):
-        if enddate < datetime.now():
-            return enddate
-        else:
-            return '-'
-    return dict(get_enddate=get_enddate)
-
-
-@app.route('/crashme')
-def crashme():
-    raise RuntimeError("Crashing as requested by you")
-
-app.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
-app.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))
-app.add_url_rule('/people', view_func=PersonListView.as_view('people'))
-app.add_url_rule('/clocking', view_func=PersonClockingView.as_view('clocking'))
-app.add_url_rule('/', view_func=IndexView.as_view('index'))
-
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        app.run(debug=True, host='0.0.0.0', port=5000)
