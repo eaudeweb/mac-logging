@@ -83,6 +83,7 @@ class EditForm(BaseForm):
                     flash(data)
                     db.session.query(PersonMac).filter_by(id=person_id).update(
                         data)
+                    db.session.commit()
                     flash('Thanks for editing.')
                 except:
                     db.session.rollback()
