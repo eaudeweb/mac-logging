@@ -108,6 +108,7 @@ migrations/
 
 # Database
 files/mac_logging.db
+mac_logging.db
 
 files/input.txt
 .vscode

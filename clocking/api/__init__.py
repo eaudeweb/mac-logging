@@ -1,7 +1,8 @@
 from flask import Blueprint
 from flask.ext.script import Manager
 
-from .view import PersonAddView, PersonEditView, PersonListView, PersonClockingView, IndexView
+from .view import PersonAddView, PersonEditView, PersonListView, \
+    PersonClockingView, IndexView
 
 api = Blueprint('api', __name__)
 api_manager = Manager()
