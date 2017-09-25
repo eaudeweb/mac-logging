@@ -3,7 +3,7 @@ import re
 from wtforms import Form, TextAreaField, validators, SelectField, fields
 from flask import flash
 
-from clocking.definitions import DAYS
+from clocking.definitions import PERIODS
 from clocking.models import PersonMac, db
 
 class BaseForm(Form):
@@ -95,7 +95,7 @@ class EditForm(BaseForm):
 
 
 class SelectForm(Form):
-    days = SelectField(
+    periods = SelectField(
         'Pontaj',
-        choices=DAYS
+        choices=PERIODS
     )
