@@ -6,6 +6,7 @@ from flask import flash
 from clocking.definitions import PERIODS
 from clocking.models import PersonMac, db
 
+
 class BaseForm(Form):
     def is_mac_address_valid(self, macs):
         """Validate the MAC addresses using a regex."""
