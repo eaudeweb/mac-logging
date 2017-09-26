@@ -1,11 +1,9 @@
 import re
 
-from wtforms import DateField, SelectField
+from wtforms import DateField
 
 from wtforms import Form, TextAreaField, validators
 from wtforms.validators import ValidationError
-
-from clocking.definitions import PERIODS
 
 from clocking.models import PersonMac, db
 
@@ -69,8 +67,11 @@ class EditForm(Form):
             db.session.rollback()
 
 
+def validate_start_date(form, field):
+    if field.data >= form.end_date.data:
+        raise ValidationError('Start date must be lower than end date.')
+
 class SelectForm(Form):
-    periods = SelectField(
-        'Pontaj',
-        choices=PERIODS
-    )
+    start_date = DateField('Start date', format="%d/%m/%Y",
+                           validators=[validate_start_date])
+    end_date = DateField('End date', format="%d/%m/%Y")
