@@ -52,24 +52,18 @@
     <footer>Nota: Adresa MAC trebuie sa respecte formatul standard (Ex: ff:ff:ff:ff:ff:ff)</footer>
 </blockquote>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-
-      {% for message in messages %}
-        {% if "Error" not in message[1]: %}
-          <div class="alert alert-info">
-            <strong>Success! </strong> {{ message[1] }}
-          </div>
-        {% endif %}
-
-        {% if "Error" in message[1]: %}
-          <div class="alert alert-warning">
-            {{ message[1] }}
-          </div>
-        {% endif %}
+{% if form.errors %}
+  <ul class="errors">
+    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+      {% for error in field_errors %}
+        <div class="alert alert-danger">
+          {{ form[field_name].label }}: {{ error }}
+        </div>
       {% endfor %}
-    {% endif %}
-  {% endwith %}
+    {% endfor %}
+  </ul>
+{% endif %}
+
 </div>
 </body>
 </html>
