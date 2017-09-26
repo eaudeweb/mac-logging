@@ -17,7 +17,9 @@ class PersonAddView(MethodView):
 
     def post(self):
         form = AddForm(request.form)
-        form.save()
+        if form.validate():
+            form.save()
+
         return render_template('add.html', form=form)
 
 
@@ -31,7 +33,9 @@ class PersonEditView(MethodView):
     def post(self, person_id):
         person = db.session.query(PersonMac).get(person_id)
         form = EditForm(request.form)
-        form.save(person_id)
+        if form.validate():
+            form.save(person_id)
+
         return render_template('edit.html', form=form, person=person)
 
 
@@ -39,7 +43,6 @@ class PersonListView(MethodView):
 
     def get(self):
         persons = PersonMac.query.order_by(PersonMac.last_name)
-
         return render_template('people.html', persons=persons)
 
 
