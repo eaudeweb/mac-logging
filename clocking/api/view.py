@@ -1,12 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 from sqlalchemy import extract
 
-from flask import render_template, request, flash
+from flask import render_template, request
 from flask.views import MethodView
 
 from clocking.models import PersonMac, Person, MacAddress, db
 from clocking.api.forms import AddForm, EditForm, SelectForm
-from clocking.definitions import LAST_DAY, CURRENT_WEEK, CURRENT_MONTH, LAST_WEEK
 
 
 class PersonAddView(MethodView):
@@ -76,43 +75,27 @@ class PersonClockingView(MethodView):
                     except:
                         db.session.rollback()
 
-    def get_persons(self, period):
-        # default is TODAY
-        start = datetime(datetime.now().year, datetime.now().month, datetime.now().day)
-        stop = start + timedelta(hours=23, minutes=59, seconds=59)
-
-        if period == LAST_DAY:
-            start -= timedelta(days=1)
-            stop -= timedelta(days=1)
-        elif period == CURRENT_WEEK:
-            while start.weekday() != 0:
-                start -= timedelta(days=1)
-        elif period == LAST_WEEK:
-            while start.weekday() != 0:
-                start -= timedelta(days=1)
-            start -= timedelta(days=7)
-            stop -= timedelta(days=7)
-            while stop.weekday() != 4:
-                stop += timedelta(days=1)
-        elif period == CURRENT_MONTH:
-            while start.day != 1:
-                start -= timedelta(days=1)
-
-        return Person.query.filter(
-            Person.startdate.between(start, stop)).order_by(Person.startdate)
+    def get_persons_by_interval(self, start_date, end_date):
+        persons = Person.query
+        if start_date and end_date:
+            return persons.filter(Person.startdate.between(start_date, end_date)).order_by(Person.startdate)
+        else:
+            return persons.all()
 
     def get(self):
         self.map_persons()
-        persons = Person.query.order_by(Person.startdate)
+        form = SelectForm()
 
-        return render_template('clocking.html', persons=persons)
+        start_date, end_date = None, None
+        if request.args:
+            form = SelectForm(request.args)
+            if form.validate():
+                start_date = form.data.get('start_date')
+                end_date = form.data.get('end_date')
 
-    def post(self):
-        form = SelectForm(request.form)
-        period = request.form['sel1']
-        persons = self.get_persons(period)
+        persons = self.get_persons_by_interval(start_date, end_date)
 
-        return render_template('clocking.html', persons=persons)
+        return render_template('clocking.html', form=form, persons=persons)
 
 
 class IndexView(MethodView):
