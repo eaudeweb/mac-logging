@@ -46,35 +46,6 @@ class PersonListView(MethodView):
 
 
 class PersonClockingView(MethodView):
-    def map_persons(self):
-        mac_addresses = MacAddress.query.all()
-        for mac_address in mac_addresses:
-            persons_mac = PersonMac.query.filter(
-                                         PersonMac.mac == mac_address.mac).all()
-            for person_mac in persons_mac:
-                # Verify if this person is already registered today
-                if Person.query \
-                        .filter(Person.last_name == person_mac.last_name) \
-                        .filter(Person.first_name == person_mac.first_name) \
-                        .filter(extract('year',
-                                        Person.startdate) == mac_address.time.date().year) \
-                        .filter(extract('month',
-                                        Person.startdate) == mac_address.time.date().month) \
-                        .filter(extract('day',
-                                        Person.startdate) == mac_address.time.date().day) \
-                        .count() == 0:
-
-                    startdate = mac_address.time
-                    enddate = startdate
-                    enddate += timedelta(hours=8)
-                    db.session.add(
-                        Person(person_mac.last_name, person_mac.first_name,
-                               startdate, enddate))
-                    try:
-                        db.session.commit()
-                    except:
-                        db.session.rollback()
-
     def get_persons_by_interval(self, start_date, end_date):
         persons = Person.query
         if start_date and end_date:
@@ -83,7 +54,6 @@ class PersonClockingView(MethodView):
             return persons.all()
 
     def get(self):
-        self.map_persons()
         form = SelectForm()
 
         start_date, end_date = None, None
