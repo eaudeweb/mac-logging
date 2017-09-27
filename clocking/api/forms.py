@@ -23,12 +23,12 @@ class MacAddressField(TextAreaField):
 
 
 class AddForm(Form):
-    last_name = TextAreaField('Nume*', validators=[validators.required()])
-    first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac1 = MacAddressField('Adresa MAC 1*', validators=[validators.required(),
-                                                        validate_mac_address])
-    mac2 = MacAddressField('Adresa MAC 2', validators=[validate_mac_address])
-    mac3 = MacAddressField('Adresa MAC 3', validators=[validate_mac_address])
+    last_name = TextAreaField('Last name**', validators=[validators.required()])
+    first_name = TextAreaField('First name*', validators=[validators.required()])
+    mac1 = MacAddressField('MAC Address 1*', validators=[validators.required(),
+                                                         validate_mac_address])
+    mac2 = MacAddressField('MAC Address 2', validators=[validate_mac_address])
+    mac3 = MacAddressField('MAC Address 3', validators=[validate_mac_address])
 
     def save(self):
         data = self.data
@@ -54,9 +54,9 @@ class AddForm(Form):
 
 
 class EditForm(Form):
-    last_name = TextAreaField('Nume*', validators=[validators.required()])
-    first_name = TextAreaField('Prenume*', validators=[validators.required()])
-    mac = MacAddressField('Adresa MAC 1*', validators=[validators.required()])
+    last_name = TextAreaField('Last name*', validators=[validators.required()])
+    first_name = TextAreaField('First name*', validators=[validators.required()])
+    mac = MacAddressField('MAC Address 1*', validators=[validators.required()])
 
     def save(self, person_id):
         try:
