@@ -15,6 +15,24 @@ def validate_mac_address(form, field):
             raise ValidationError('MAC Address invalid.')
 
 
+def validate_mac_address_unique_add(form, field):
+    if field.data is not u'':
+        if PersonMac.query.filter(PersonMac.mac == field.data).count() > 0:
+            raise ValidationError('MAC Address already exists.')
+
+
+def validate_mac_address_unique_edit(form, field):
+    if field.data is not u'':
+        person_mac = PersonMac.query.filter(PersonMac.mac == field.data)
+        if person_mac.count() > 1:
+            raise ValidationError('MAC Address already exists.')
+        elif person_mac.count() == 1:
+            person_mac = person_mac.first()
+            if form.last_name.data != person_mac.last_name and \
+                            form.first_name.data != person_mac.first_name:
+                raise ValidationError('MAC Address already exists.')
+
+
 class MacAddressField(TextAreaField):
 
     def process_formdata(self, valuelist):
@@ -25,10 +43,16 @@ class MacAddressField(TextAreaField):
 class AddForm(Form):
     last_name = TextAreaField('Last name**', validators=[validators.required()])
     first_name = TextAreaField('First name*', validators=[validators.required()])
-    mac1 = MacAddressField('MAC Address 1*', validators=[validators.required(),
-                                                         validate_mac_address])
-    mac2 = MacAddressField('MAC Address 2', validators=[validate_mac_address])
-    mac3 = MacAddressField('MAC Address 3', validators=[validate_mac_address])
+    mac1 = MacAddressField('MAC Address 1*',
+                           validators=[validators.required(),
+                                       validate_mac_address,
+                                       validate_mac_address_unique_add])
+    mac2 = MacAddressField('MAC Address 2',
+                           validators=[validate_mac_address,
+                                       validate_mac_address_unique_add])
+    mac3 = MacAddressField('MAC Address 3',
+                           validators=[validate_mac_address,
+                                       validate_mac_address_unique_add])
 
     def save(self):
         data = self.data
@@ -56,7 +80,9 @@ class AddForm(Form):
 class EditForm(Form):
     last_name = TextAreaField('Last name*', validators=[validators.required()])
     first_name = TextAreaField('First name*', validators=[validators.required()])
-    mac = MacAddressField('MAC Address 1*', validators=[validators.required()])
+    mac = MacAddressField('MAC Address 1*',
+                          validators=[validators.required(),
+                                      validate_mac_address_unique_edit])
 
     def save(self, person_id):
         try:
@@ -70,6 +96,7 @@ class EditForm(Form):
 def validate_start_date(form, field):
     if field.data >= form.end_date.data:
         raise ValidationError('Start date must be lower than end date.')
+
 
 class SelectForm(Form):
     start_date = DateField('Start date', format="%d/%m/%Y",
