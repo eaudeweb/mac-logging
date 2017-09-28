@@ -10,6 +10,11 @@
 <body>
 <div class="container">
   <h1>People</h1>
+  {% if success %}
+      <div class="alert alert-success">
+        {{ success }}
+      </div>
+  {% endif %}
   <ul class="list-group">
     {% for person in persons %}
       <li class="list-group-item"><a href="{{ url_for('api.edit', person_id=person.id) }}">{{ person.last_name }} {{ person.first_name }}</a> ---> {{ person.mac }}</li>
