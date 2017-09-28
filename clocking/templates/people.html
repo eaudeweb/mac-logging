@@ -15,12 +15,26 @@
         {{ success }}
       </div>
   {% endif %}
-  <ul class="list-group">
-    {% for person in persons %}
-      <li class="list-group-item"><a href="{{ url_for('api.edit', person_id=person.id) }}">{{ person.last_name }} {{ person.first_name }}</a> ---> {{ person.mac }}</li>
-    {% endfor %}
-  </ul>
-
+  <div class="col-sm-8">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>MAC Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for person in persons %}
+          <tr>
+            <td>
+              <a href="{{ url_for('api.edit', person_id=person.id) }}">{{ person.first_name }} {{ person.last_name }}</a>
+            </td>
+            <td> {{ person.mac }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <a href="{{ url_for('api.add') }}">
     <button type="button" class="btn btn-success">Add</button>
   </a>
