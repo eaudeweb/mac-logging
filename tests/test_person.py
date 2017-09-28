@@ -7,7 +7,7 @@ from .factories import PersonMacFactory
 
 
 def test_first_page(client):
-    resp = client.get(url_for('api.index'))
+    resp = client.get(url_for('api.clocking'))
     assert resp.status_code == 200
 
 def test_people(client):
