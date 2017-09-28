@@ -82,6 +82,7 @@ class EditForm(Form):
     first_name = TextAreaField('First name*', validators=[validators.required()])
     mac = MacAddressField('MAC Address 1*',
                           validators=[validators.required(),
+                                      validate_mac_address,
                                       validate_mac_address_unique_edit])
 
     def save(self, person_id):

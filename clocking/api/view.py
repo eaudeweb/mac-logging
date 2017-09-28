@@ -18,6 +18,9 @@ class PersonAddView(MethodView):
         form = AddForm(request.form)
         if form.validate():
             form.save()
+            persons = PersonMac.query.order_by(PersonMac.last_name)
+            return render_template('people.html', persons=persons,
+                                   success="You've successfully added a person")
 
         return render_template('add.html', form=form)
 
@@ -34,6 +37,9 @@ class PersonEditView(MethodView):
         form = EditForm(request.form)
         if form.validate():
             form.save(person_id)
+            persons = PersonMac.query.order_by(PersonMac.last_name)
+            return render_template('people.html', persons=persons,
+                                   success="You've successfully edited a person")
 
         return render_template('edit.html', form=form, person=person)
 
