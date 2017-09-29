@@ -1,48 +1,40 @@
-from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy import (
+    Column, Integer, String, DateTime, UniqueConstraint, ForeignKey
+)
+from sqlalchemy.orm import relationship
+from sqlalchemy_utils import ChoiceType
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
 
-class MacAddress(db.Model):
-    __tablename__ = 'mac_addresses'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    mac = Column(String(128), unique=True)
-    time = Column(DateTime, nullable=False)
+class Address(db.Model):
+    __tablename__ = 'address'
+    DEVICES = [
+        (u'mobile', u'Mobile'),
+        (u'laptop', u'Laptop'),
+        (u'desktop', u'Desktop')
+    ]
 
-    def __init__(self, mac=None, time=None):
-        self.mac = mac
-        self.time = time
+    mac = Column(String(128), primary_key=True)
+    device = Column(ChoiceType(DEVICES), nullable=False)
+    person_id = Column(ForeignKey('person.id'))
 
-
-class PersonMac(db.Model):
-    """ Person model """
-    __tablename__ = 'persons_mac'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    mac = Column(String(128), unique=True)
-    last_name = Column(String(128), nullable=False)
-    first_name = Column(String(128), nullable=False)
-
-    def __init__(self, last_name=None, first_name=None, mac=None):
-        self.last_name = last_name
-        self.first_name = first_name
-        self.mac = mac
+    person = relationship('Person')
 
 
 class Person(db.Model):
-    __tablename__ = 'persons'
+    """ Person model """
+    __tablename__ = 'person'
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=False)
-    startdate = Column(DateTime, nullable=False)
-    enddate = Column(DateTime, nullable=False)
-    __table_args__ = (
-        UniqueConstraint('last_name', 'first_name', 'enddate',
-                         name='unique_columns'),
-    )
 
-    def __init__(self, last_name=None, first_name=None, startdate=None, enddate=None):
-        self.last_name = last_name
-        self.first_name = first_name
-        self.startdate = startdate
-        self.enddate = enddate
+
+class Entry(db.Model):
+    __tablename__ = 'entry'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    mac_id = Column(ForeignKey('address.mac'))
+    startdate = Column(DateTime, nullable=False)
+
+    mac = relationship('Address')
