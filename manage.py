@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import datetime
 import os.path
 import sqlite3
@@ -9,11 +10,11 @@ from datetime import datetime, timedelta
 from flask_script import Manager
 
 from clocking.app import app
-from clocking.models import db
 
 
 manager = Manager(app)
 db_manager = Manager()
+manager.add_command('db', db_manager)
 
 
 def connect_to_db():
@@ -118,7 +119,13 @@ def check_persons():
     conn.close()
 
 
+@db_manager.option('alembic_args', nargs=argparse.REMAINDER)
+def alembic(alembic_args):
+    from alembic.config import CommandLine
+
+    CommandLine().main(argv=alembic_args)
+
+
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
         manager.run()

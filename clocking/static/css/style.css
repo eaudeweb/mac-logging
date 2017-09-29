@@ -1,4 +1,7 @@
-body {
-    background: white;
-    color: black;
+.hidden{
+    display:none;
+}
+
+.visible{
+    display: inline-block;
 }
