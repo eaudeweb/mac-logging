@@ -14,10 +14,11 @@ def validate_mac_address(form, field):
         if not re.match("[0-9A-Fa-f]{2}([ :])[0-9A-Fa-f]{2}(\\1[0-9A-Fa-f]{2}){4}$", field.data):
             raise ValidationError('MAC Address invalid.')
 
+
 class PersonForm(Form):
-    last_name = TextAreaField('Last name**',
+    last_name = TextAreaField('Last name',
                               validators=[validators.required()])
-    first_name = TextAreaField('First name*',
+    first_name = TextAreaField('First name',
                                validators=[validators.required()])
 
     def save(self):
