@@ -21,16 +21,28 @@
         <tr>
           <th>Name</th>
           <th>MAC Address</th>
+          <th>Device</th>
         </tr>
       </thead>
       <tbody>
         {% for person in persons %}
           <tr>
-            <td>
-              <a href="{{ url_for('api.edit', person_id=person.id) }}">{{ person.first_name }} {{ person.last_name }}</a>
+            <td rowspan="{{ person.addresses|length }}">
+              <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                {{ person.first_name }} {{ person.last_name }}
+              </a>
             </td>
-            <td> {{ person.mac }}</td>
+              <td>{{ person.addresses[0].mac }}</td>
+              <td>{{ person.addresses[0].device }}</td>
           </tr>
+
+          {% for address in person.addresses[1:] %}
+            <tr>
+              <td>{{ address.mac }}</td>
+              <td>{{ address.device }}</td>
+            </tr>
+          {% endfor %}
+
         {% endfor %}
       </tbody>
     </table>
