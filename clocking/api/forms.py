@@ -21,9 +21,14 @@ class PersonForm(Form):
     first_name = TextAreaField('First name',
                                validators=[validators.required()])
 
-    def save(self):
-        person = Person(**self.data)
-        db.session.add(person)
+    def save(self, person_id=None):
+        if person_id:
+            person = db.session.query(Person).filter_by(id=person_id)
+            person.update(self.data)
+            person = person.first()
+        else:
+            person = Person(**self.data)
+            db.session.add(person)
         try:
             db.session.commit()
         except:
@@ -66,28 +71,19 @@ class MacForm(Form):
 
         return address
 
-# def validate_mac_address_unique_add(form, field):
-#     if field.data is not u'':
-#         if PersonMac.query.filter(PersonMac.mac == field.data).count() > 0:
-#             raise ValidationError('MAC Address already exists.')
-#
-#
-# def validate_mac_address_unique_edit(form, field):
-#     if field.data is not u'':
-#         person_mac = PersonMac.query.filter(PersonMac.mac == field.data)
-#         if person_mac.count() > 1:
-#             raise ValidationError('MAC Address already exists.')
-#         elif person_mac.count() == 1:
-#             person_mac = person_mac.first()
-#             if form.last_name.data != person_mac.last_name and \
-#                             form.first_name.data != person_mac.first_name:
-#                 raise ValidationError('MAC Address already exists.')
+
+def validate_mac_address_unique_edit(form, field):
+    if field.data is not u'':
+        person_mac = Address.query.filter(Address.mac == field.data)
+        if person_mac.count() > 1:
+            raise ValidationError('MAC Address already exists.')
+        elif person_mac.count() == 1:
+            person_mac = person_mac.first()
+            if form.last_name.data != person_mac.last_name and \
+                            form.first_name.data != person_mac.first_name:
+                raise ValidationError('MAC Address already exists.')
 
 
-
-
-#
-#
 # class EditForm(Form):
 #     last_name = TextAreaField('Last name*', validators=[validators.required()])
 #     first_name = TextAreaField('First name*', validators=[validators.required()])
@@ -98,11 +94,12 @@ class MacForm(Form):
 #
 #     def save(self, person_id):
 #         try:
-#             db.session.query(PersonMac).filter_by(id=person_id).update(
+#             db.session.query(Address).filter_by(id=person_id).update(
 #                 self.data)
 #             db.session.commit()
 #         except:
 #             db.session.rollback()
+
 #
 #
 # def validate_start_date(form, field):

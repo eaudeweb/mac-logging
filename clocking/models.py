@@ -20,7 +20,8 @@ class Address(db.Model):
     device = Column(ChoiceType(DEVICES), nullable=False)
     person_id = Column(ForeignKey('person.id'))
 
-    person = relationship('Person')
+    person = relationship('Person',
+                          backref=db.backref('addresses'))
 
 
 class Person(db.Model):
