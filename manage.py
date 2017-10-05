@@ -1,40 +1,36 @@
+#!/usr/bin/env python
+
+import argparse
 import datetime
 import os.path
-import time
 import sqlite3
-from flask_script import Manager
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 
-from app import app
+from flask_script import Manager
+
+from clocking.app import app
+
 
 manager = Manager(app)
+db_manager = Manager()
+manager.add_command('db', db_manager)
 
 
 def connect_to_db():
     return sqlite3.connect("/var/local/pontaj/files/mac_logging.db")
 
 
-@manager.command
-def clear_mac_addresses():
-    conn = connect_to_db()
-    c = conn.cursor()
-
-    c.execute("DELETE FROM mac_addresses")
-    conn.commit()
-
-    conn.close()
-
-
 def parse():
     infile = open("/var/local/pontaj/files/input.txt", "r")
-    mac_addresses = []
+    addresses = []
     for line in iter(infile):
         values = line.split(' "')
-        mac_addresses.append(values[1])
+        addresses.append(values[1])
 
     infile.close()
 
-    return mac_addresses
+    return addresses
 
 
 def get_time():
@@ -43,31 +39,59 @@ def get_time():
 
 
 @manager.command
-def check_insert_mac_addresses():
-
-    print('Hello from check!')
-
+def check_new_entries():
     conn = connect_to_db()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM mac_addresses")
+    c.execute("SELECT * FROM address")
     existing_values = c.fetchall()
-    existing_mac_addresses = [pair[1] for pair in existing_values]
+    existing_addresses = [x[0] for x in existing_values]
 
-    mac_addresses = parse()
+    addresses = parse()
     last_modified = get_time()
-    curr_id = len(existing_mac_addresses)
+    new_entries = []
+    for address in addresses:
+        if address in existing_addresses:
+            c.execute("SELECT * FROM person JOIN address "
+                      "ON address.person_id = person.id "
+                      "AND address.mac=?", (address, ))
+            person_details = c.fetchone()
+            new_entries.append((address, person_details[1], person_details[2]))
+
+    c.execute("SELECT (id) FROM entry ORDER BY id DESC LIMIT 1")
+    curr_id = c.fetchone()
+    if curr_id is None:
+        curr_id = 1
+    else:
+        curr_id = curr_id[0] + 1
+
     values = []
-    for mac_address in mac_addresses:
-        if mac_address not in existing_mac_addresses:
-            values.append((curr_id, mac_address, last_modified))
+
+    startdate_datetime = last_modified
+    startdate_string = datetime.strftime(startdate_datetime, '%Y-%m-%d %H:%M:%S')
+    for new_entry in new_entries:
+        c.execute("SELECT * FROM address a JOIN entry e ON a.mac = e.mac_id "
+                  "JOIN person p ON p.id = a.person_id "
+                  "WHERE p.last_name=? "
+                  "AND p.first_name=? "
+                  "AND DATE(e.startdate)=?", (new_entry[1], new_entry[2], startdate_datetime.date()))
+        if len(c.fetchall()) == 0:
+            values.append((curr_id, new_entry[0], startdate_string))
             curr_id += 1
 
-    conn.executemany("INSERT INTO mac_addresses VALUES (?, ?, ?)", values)
+    conn.executemany("INSERT INTO entry VALUES (?, ?, ?)", values)
     conn.commit()
 
     conn.close()
 
 
+@db_manager.option('alembic_args', nargs=argparse.REMAINDER)
+def alembic(alembic_args):
+    from alembic.config import CommandLine
+
+    CommandLine().main(argv=alembic_args)
+
+
 if __name__ == "__main__":
-    manager.run()
+    with app.app_context():
+        manager.run()

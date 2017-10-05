@@ -25,13 +25,17 @@ devices.
 
         $ cp docker/app.env.example docker/app.env
         $ vim docker/app.env
+        
+3. Customize docker orchestration:
 
-2. Start stack, all services should be "Up" :
+        $ cp docker-compose.override.yml.example docker-compose.override.yml
+
+4. Start stack, all services should be "Up" :
 
         $ docker-compose up -d
         $ docker-compose ps
 
-3. See it in action: [http://localhost:5000](http://localhost:5000)
+5. See it in action: [http://localhost:5000](http://localhost:5000)
 
 
 ### Upgrading the application
@@ -55,17 +59,34 @@ In the _docker-compose.dev.yml_, the project directory is mapped inside the _app
 
 * Start stack, all services should be "Up" :
 
-        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml ps
+        $ docker-compose up -d
+        $ docker-compose ps
 
 * Check application logs:
 
-        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml logs -f app
+        $ docker-compose app
 
 * When the image is modified you should update the stack:
 
-        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+        $ docker-compose up -d --build
 
 * Delete the containers and the volumes with:
 
-        $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
+        $ docker-compose down -v
+        
+        
+### Debugging
+
+* Please make sure that `DEBUG=True` in `app.env` file.
+
+* Update docker-compose.override.yml file `app` section with the following so that `docker-entrypoint.sh`
+is not executed:
+
+        entrypoint: ["/usr/bin/tail", "-f", "/dev/null"]
+
+* Attach to docker container and start the server in debug mode:
+
+        $ docker exec -it pontaj.app sh
+        # ./manage.py runserver -h 0.0.0.0 -p 5000
+
+* See it in action: [http://localhost:5000](http://localhost:5000)

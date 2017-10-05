@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+</head>
+
+<body>
+<div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Clocking</a></li>
+    <li class="breadcrumb-item">People</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.about') }}">About</a></li>
+    <li class="breadcrumb-item"><a href="https://github.com/eaudeweb/mac-logging/issues">Send issues</a></li>
+  </ol>
+  <h1>People</h1>
+  <div class="col-sm-8">
+     <a href="{{ url_for('api.add') }}">
+      <button type="button" class="btn btn-success">Add</button>
+     </a>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>MAC Address</th>
+          <th>Device</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for person in persons %}
+          <tr>
+            <td rowspan="{{ person.addresses.count() }}">
+              <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                {{ person.first_name }} {{ person.last_name }}
+              </a>
+            </td>
+              {% if person.addresses.count() %}
+                <td>{{ person.addresses[0].mac }}</td>
+                <td>{{ person.addresses[0].device }}</td>
+              {% else %}
+                <td></td>
+                <td></td>
+              {% endif %}
+          </tr>
+          {% for address in person.addresses[1:] %}
+            <tr>
+              <td>{{ address.mac }}</td>
+              <td>{{ address.device }}</td>
+            </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

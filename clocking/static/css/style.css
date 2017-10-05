@@ -1,0 +1,11 @@
+.hidden{
+    display:none;
+}
+
+.visible{
+    display: inline-block;
+}
+
+.margin-top{
+    margin-top: 80px;
+}

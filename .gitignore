@@ -103,12 +103,12 @@ ENV/
 # PyCharm conf
 .idea/
 
-# Migrations
-migrations/
-
 # Database
 files/mac_logging.db
+mac_logging.db
 
-input.txt
+files/input.txt
 .vscode
 *.env
+
+docker-compose.override.yml
