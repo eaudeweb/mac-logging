@@ -49,3 +49,7 @@ def test_edit_person_mac(client):
     person = Person.query.first()
     assert person.last_name == 'l_test'
     assert person.first_name == 'f_test'
+
+def test_about(client):
+    resp = client.get(url_for('api.about'))
+    assert resp.status_code == 200

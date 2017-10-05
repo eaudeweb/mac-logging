@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+</head>
+<body>
+<div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Clocking</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">Add person</a></li>
+    <li class="breadcrumb-item active">About</li>
+    <li class="breadcrumb-item"><a href="https://github.com/eaudeweb/mac-logging/issues">Send issues</a></li>
+  </ol>
+  <h1>About</h1>
+  <p>This application is developed in order to provide a tool to detect
+    when people come and go from work, depending on the MAC addresses of their
+    personal devices.
+  </p>
+</div>
+</body>
+</html>

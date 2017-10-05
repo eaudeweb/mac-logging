@@ -97,3 +97,9 @@ class PersonClockingView(MethodView):
         entries = self.get_entries_by_interval(start_date, end_date)
 
         return render_template('clocking.html', form=form, entries=entries)
+
+
+class AboutView(MethodView):
+
+    def get(self):
+        return render_template('about.html')
