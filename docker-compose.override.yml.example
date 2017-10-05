@@ -1,0 +1,16 @@
+
+version: '2'
+
+services:
+
+  app:
+    build: .
+    container_name: pontaj.app
+    ports:
+    - "5000:5000"
+    volumes:
+    - .:/var/local/pontaj/
+
+  cronjobs:
+    build: .
+    container_name: pontaj.cronjobs
