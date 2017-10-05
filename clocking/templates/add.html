@@ -10,6 +10,11 @@
 
 <body>
 <div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Clocking</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+    <li class="breadcrumb-item">Add person</li>
+  </ol>
   <h2>Registration</h2>
   <div id="person">
     <form class="form-horizontal" id="post_add_person_form" method="post">
@@ -37,10 +42,6 @@
     </form>
     <div id="person_form_errors"></div>
   </div>
-
-{#  <blockquote>#}
-{#    <footer>Note: MAC Address should follow the standard format (e.g. ff:ff:ff:ff:ff:ff) </footer>#}
-{#  </blockquote>#}
 
 </div>
 </body>

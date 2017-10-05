@@ -10,6 +10,11 @@
 
 <body>
 <div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Clocking</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
+  </ol>
   <h2>Edit</h2>
   <div id="person_edit_container">
     {% include 'bits/person_edit.html' %}

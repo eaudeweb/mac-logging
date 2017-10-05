@@ -9,6 +9,11 @@
 
 <body>
 <div class="container">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Clocking</a></li>
+    <li class="breadcrumb-item">People</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
+  </ol>
   <h1>People</h1>
   {% if success %}
       <div class="alert alert-success">
