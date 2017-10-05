@@ -110,3 +110,5 @@ mac_logging.db
 files/input.txt
 .vscode
 *.env
+
+docker-compose.override.yml
