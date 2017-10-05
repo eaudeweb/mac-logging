@@ -18,6 +18,11 @@
 
 <body>
 <div class="container center-block">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active">Clocking</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
+  </ol>
   <h1>Clocking</h1>
   <blockquote>
     <footer>This application is developed in order to provide a tool to detect
