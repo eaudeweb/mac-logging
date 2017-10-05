@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Flask
 
@@ -31,6 +31,7 @@ app = create_app()
 @app.context_processor
 def utility_processor():
     def get_enddate(enddate):
+        enddate += timedelta(hours=8)
         if enddate < datetime.now():
             return enddate
         else:

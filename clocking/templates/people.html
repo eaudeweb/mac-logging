@@ -27,13 +27,15 @@
       <tbody>
         {% for person in persons %}
           <tr>
-            <td rowspan="{{ person.addresses|length }}">
+            <td rowspan="{{ person.addresses.count() }}">
               <a href="{{ url_for('api.edit', person_id=person.id) }}">
                 {{ person.first_name }} {{ person.last_name }}
               </a>
             </td>
+              {% if person.addresses.count() %}
               <td>{{ person.addresses[0].mac }}</td>
               <td>{{ person.addresses[0].device }}</td>
+              {% endif %}
           </tr>
 
           {% for address in person.addresses[1:] %}

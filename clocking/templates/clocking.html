@@ -51,19 +51,19 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Last name</th>
-          <th>First name</th>
+          <th>Person name</th>
+          <th>Device</th>
           <th>Start date</th>
           <th>End date</th>
         </tr>
       </thead>
       <tbody>
-        {% for person in persons %}
+        {% for entry in entries %}
           <tr>
-            <td>{{ person.last_name }}</td>
-            <td>{{ person.first_name }}</td>
-            <td>{{ person.startdate }}</td>
-            <td>{{ get_enddate(person.enddate) }}</td>
+            <td>{{ entry.mac.person.first_name }} {{ entry.mac.person.last_name }}</td>
+            <td>{{ entry.mac.device }}</td>
+            <td>{{ entry.startdate }}</td>
+            <td>{{ get_enddate(entry.startdate) }}</td>
           </tr>
         {% endfor %}
       </tbody>

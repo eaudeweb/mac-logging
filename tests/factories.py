@@ -1,14 +1,13 @@
 from factory.alchemy import SQLAlchemyModelFactory
 
-from clocking import models
+from clocking.models import db, Person
 
 
-class PersonMacFactory(SQLAlchemyModelFactory):
+class PersonFactory(SQLAlchemyModelFactory):
 
     class Meta:
-        model = models.PersonMac
-        sqlalchemy_session = models.db.session
+        model = Person
+        sqlalchemy_session = db.session
 
-    mac = 'ff:ff:ff:ff:ff:ff'
     last_name = 'l'
     first_name = 'f'

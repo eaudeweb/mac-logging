@@ -21,7 +21,7 @@ class Address(db.Model):
     person_id = Column(ForeignKey('person.id'))
 
     person = relationship('Person',
-                          backref=db.backref('addresses'))
+                          backref=db.backref('addresses', lazy='dynamic'))
 
 
 class Person(db.Model):
@@ -38,4 +38,5 @@ class Entry(db.Model):
     mac_id = Column(ForeignKey('address.mac'))
     startdate = Column(DateTime, nullable=False)
 
-    mac = relationship('Address')
+    mac = relationship('Address',
+                       backref=db.backref('entries', lazy='dynamic'))

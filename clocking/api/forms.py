@@ -84,30 +84,12 @@ def validate_mac_address_unique_edit(form, field):
                 raise ValidationError('MAC Address already exists.')
 
 
-# class EditForm(Form):
-#     last_name = TextAreaField('Last name*', validators=[validators.required()])
-#     first_name = TextAreaField('First name*', validators=[validators.required()])
-#     mac = MacAddressField('MAC Address 1*',
-#                           validators=[validators.required(),
-#                                       validate_mac_address,
-#                                       validate_mac_address_unique_edit])
-#
-#     def save(self, person_id):
-#         try:
-#             db.session.query(Address).filter_by(id=person_id).update(
-#                 self.data)
-#             db.session.commit()
-#         except:
-#             db.session.rollback()
+def validate_start_date(form, field):
+    if field.data >= form.end_date.data:
+        raise ValidationError('Start date must be lower than end date.')
 
-#
-#
-# def validate_start_date(form, field):
-#     if field.data >= form.end_date.data:
-#         raise ValidationError('Start date must be lower than end date.')
-#
-#
-# class SelectForm(Form):
-#     start_date = DateField('Start date', format="%d/%m/%Y",
-#                            validators=[validate_start_date])
-#     end_date = DateField('End date', format="%d/%m/%Y")
+
+class SelectForm(Form):
+    start_date = DateField('Start date', format="%d/%m/%Y",
+                           validators=[validate_start_date])
+    end_date = DateField('End date', format="%d/%m/%Y")
