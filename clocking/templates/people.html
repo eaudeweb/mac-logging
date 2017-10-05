@@ -15,12 +15,10 @@
     <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
   </ol>
   <h1>People</h1>
-  {% if success %}
-      <div class="alert alert-success">
-        {{ success }}
-      </div>
-  {% endif %}
   <div class="col-sm-8">
+     <a href="{{ url_for('api.add') }}">
+      <button type="button" class="btn btn-success">Add</button>
+     </a>
     <table class="table">
       <thead>
         <tr>
@@ -38,25 +36,23 @@
               </a>
             </td>
               {% if person.addresses.count() %}
-              <td>{{ person.addresses[0].mac }}</td>
-              <td>{{ person.addresses[0].device }}</td>
+                <td>{{ person.addresses[0].mac }}</td>
+                <td>{{ person.addresses[0].device }}</td>
+              {% else %}
+                <td></td>
+                <td></td>
               {% endif %}
           </tr>
-
           {% for address in person.addresses[1:] %}
             <tr>
               <td>{{ address.mac }}</td>
               <td>{{ address.device }}</td>
             </tr>
           {% endfor %}
-
         {% endfor %}
       </tbody>
     </table>
   </div>
-  <a href="{{ url_for('api.add') }}">
-    <button type="button" class="btn btn-success">Add</button>
-  </a>
 </div>
 </body>
 </html>
