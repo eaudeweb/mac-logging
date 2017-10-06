@@ -1,75 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css')}}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css')}}">
-  <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
-  <script src="{{ url_for('static', filename='js/jquery-1.10.2.js')}}"></script>
-  <script src="{{ url_for('static', filename='js/jquery-ui.js')}}"></script>
-	<script>
-    $(function() {
-      $( ".dtpick" ).datepicker({dateFormat: 'dd/mm/yy'});
-    });
-	</script>
-</head>
-
-<body>
-<div class="container center-block">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item active">Clocking</li>
-    <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
-    <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
-    <li class="breadcrumb-item"><a href="{{ url_for('api.about') }}">About</a></li>
-    <li class="breadcrumb-item"><a href="https://github.com/eaudeweb/mac-logging/issues">Send issues</a></li>
-  </ol>
-  <h1>Clocking</h1>
-  <div>
-    <form method="get" action="" role="form">
-      <div class="col-sm-5">
-        {{ form.start_date(class="dtpick form-control", placeholder="Start date", autocomplete='off') }}
-      </div>
-      <div class="col-sm-5">
-        {{ form.end_date(class="dtpick form-control", placeholder="End date", autocomplete='off') }}
-      </div>
-      <button type="submit" class="btn btn-success">Filter</button>
-    </form>
-  </div>
-  {% if form.errors %}
-    <ul class="errors">
-      {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-        {% for error in field_errors %}
-          <div class="alert alert-danger">
-            {{ form[field_name].label }}: {{ error }}
-          </div>
-        {% endfor %}
-      {% endfor %}
-    </ul>
-  {% endif %}
-  <div>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Person name</th>
-          <th>Device</th>
-          <th>Start date</th>
-          <th>End date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for entry in entries %}
-          <tr>
-            <td>{{ entry.mac.person.first_name }} {{ entry.mac.person.last_name }}</td>
-            <td>{{ entry.mac.device }}</td>
-            <td>{{ entry.startdate }}</td>
-            <td>{{ get_enddate(entry.startdate) }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+{% extends "layout.html" %}
+{% block content %}
+<h1>Working time</h1>
+<div>
+  <form method="get" action="" role="form">
+    <div class="col-sm-5">
+      {{ form.start_date(class="dtpick form-control", placeholder="Start date", autocomplete='off') }}
+    </div>
+    <div class="col-sm-5">
+      {{ form.end_date(class="dtpick form-control", placeholder="End date", autocomplete='off') }}
+    </div>
+    <button type="submit" class="btn btn-success">Filter</button>
+  </form>
 </div>
-</body>
-</html>
+{% if form.errors %}
+  <ul class="errors">
+    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+      {% for error in field_errors %}
+        <div class="alert alert-danger">
+          {{ form[field_name].label }}: {{ error }}
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+{% endif %}
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Person name</th>
+        <th>Device</th>
+        <th>Start date</th>
+        <th>End date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+        <tr>
+          <td>{{ entry.mac.person.first_name }} {{ entry.mac.person.last_name }}</td>
+          <td>{{ entry.mac.device }}</td>
+          <td>{{ entry.startdate }}</td>
+          <td>{{ get_enddate(entry.startdate) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
