@@ -9,7 +9,7 @@
     <div class="col-sm-5">
       {{ form.end_date(class="dtpick form-control", placeholder="End date", autocomplete='off') }}
     </div>
-    <button type="submit" class="btn btn-success">Filter</button>
+    <button type="submit" class="btn btn-info">Filter</button>
   </form>
 </div>
 {% if form.errors %}
@@ -27,17 +27,28 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Person name</th>
+        <th>Name</th>
         <th>Device</th>
-        <th>Start date</th>
-        <th>End date</th>
+        <th>In</th>
+        <th>Out</th>
       </tr>
     </thead>
     <tbody>
       {% for entry in entries %}
         <tr>
           <td>{{ entry.mac.person.first_name }} {{ entry.mac.person.last_name }}</td>
-          <td>{{ entry.mac.device }}</td>
+          <td>
+            <span class="label label-
+              {%- if entry.mac.device == 'mobile' -%}
+                primary
+              {% elif entry.mac.device == 'desktop' -%}
+                warning
+              {%- else -%}
+                success
+              {%- endif -%}">
+              {{ entry.mac.device }}
+            </span>
+          </td>
           <td>{{ entry.startdate }}</td>
           <td>{{ get_enddate(entry.startdate) }}</td>
         </tr>

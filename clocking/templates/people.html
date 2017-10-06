@@ -2,9 +2,6 @@
 {% block content %}
 <h1>People</h1>
 <div class="col-sm-8">
-   <a href="{{ url_for('api.add') }}">
-    <button type="button" class="btn btn-success">Add person</button>
-   </a>
   <table class="table">
     <thead>
       <tr>
@@ -23,7 +20,18 @@
           </td>
             {% if person.addresses.count() %}
               <td>{{ person.addresses[0].mac }}</td>
-              <td>{{ person.addresses[0].device }}</td>
+              <td>
+                <span class="label label-
+                  {%- if person.addresses[0].device == 'mobile' -%}
+                    primary
+                  {% elif person.addresses[0].device == 'desktop' -%}
+                    warning
+                  {%- else -%}
+                    success
+                  {%- endif -%}">
+                  {{ person.addresses[0].device }}
+                </span>
+              </td>
             {% else %}
               <td></td>
               <td></td>
@@ -32,11 +40,27 @@
         {% for address in person.addresses[1:] %}
           <tr>
             <td>{{ address.mac }}</td>
-            <td>{{ address.device }}</td>
+            <td>
+              <span class="label label-
+                {%- if address.device == 'mobile' -%}
+                  primary
+                {% elif address.device == 'desktop' -%}
+                  warning
+                {%- else -%}
+                  success
+                {%- endif -%}">
+                {{ address.device }}
+              </span>
+            </td>
           </tr>
         {% endfor %}
       {% endfor %}
     </tbody>
   </table>
+  <div>
+   <a href="{{ url_for('api.add') }}">
+    <button type="button" class="btn btn-info">Add person</button>
+   </a>
+  </div>
 </div>
 {% endblock %}

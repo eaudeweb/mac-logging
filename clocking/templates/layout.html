@@ -10,19 +10,17 @@
   <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
   <script src="{{ url_for('static', filename='js/jquery-1.10.2.js')}}"></script>
   <script src="{{ url_for('static', filename='js/jquery-ui.js')}}"></script>
-  <link href="sticky-footer-navbar.css" rel="stylesheet">
-	<script>
+  <script>
     $(function() {
       $( ".dtpick" ).datepicker({dateFormat: 'dd/mm/yy'});
     });
-	</script>
+  </script>
 </head>
 <body>
   <div class="container center-block">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Home</a></li>
+      <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Hours</a></li>
       <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
-      <li class="breadcrumb-item"><a href="{{ url_for('api.add') }}">Add person</a></li>
       <li class="breadcrumb-item active"><a href="{{ url_for('api.about') }}">About</a></li>
     </ol>
     {% block content %}{% endblock %}
@@ -31,7 +29,7 @@
   <footer class="footer">
     <div class="container">
       <span class="text-muted">Found an issue? Please report it on
-        <a href="https://github.com/eaudeweb/mac-logging">GitHub</a>
+        <a href="https://github.com/eaudeweb/mac-logging/issues">GitHub</a>
       </span>
     </div>
   </footer>
