@@ -9,10 +9,11 @@
 .margin-top{
     margin-top: 80px;
 }
+
 .footer {
     text-align: center;
     padding-top: 10px;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
     /* Set the fixed height of the footer here */
