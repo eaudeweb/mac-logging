@@ -1,5 +1,6 @@
 import re
 
+from datetime import timedelta
 from wtforms import DateField
 
 from wtforms import Form, TextAreaField, IntegerField, validators
@@ -85,11 +86,14 @@ def validate_mac_address_unique_edit(form, field):
 
 
 def validate_start_date(form, field):
-    if field.data >= form.end_date.data:
-        raise ValidationError('Start date must be lower than end date.')
+    if form.end_date.data:
+        if field.data > form.end_date.data:
+            raise ValidationError('Start date must be lower than end date.')
 
 
 class SelectForm(Form):
     start_date = DateField('Start date', format="%d/%m/%Y",
-                           validators=[validate_start_date])
-    end_date = DateField('End date', format="%d/%m/%Y")
+                           validators=[validators.required(),
+                                       validate_start_date])
+    end_date = DateField('End date', format="%d/%m/%Y",
+                         validators=[validators.required()])

@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 from flask import render_template, request, Response
 from flask.views import MethodView
 
@@ -79,8 +80,9 @@ class PersonClockingView(MethodView):
     def get_entries_by_interval(self, start_date, end_date):
         entries = Entry.query
         if start_date and end_date:
-            return entries.filter(
-                (Entry.startdate.between(start_date, end_date)))
+            return entries.filter(Entry.startdate >= start_date).filter(
+                Entry.startdate <= end_date + timedelta(hours=24)).order_by(
+                Entry.startdate)
         else:
             return entries.all()
 
