@@ -3,14 +3,14 @@ version: '2'
 services:
 
   app:
-    image: eaudeweb/mac-logging:0.3.2
+    image: eaudeweb/mac-logging:0.3.3
     env_file:
     - ./docker/app.env
     volumes:
     - data:/var/local/pontaj/files
 
   cronjobs:
-    image: eaudeweb/mac-logging:0.3.2
+    image: eaudeweb/mac-logging:0.3.3
     entrypoint: ["./cronjobs-entrypoint.sh"]
     volumes:
     - data:/var/local/pontaj/files
