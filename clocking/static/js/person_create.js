@@ -5,7 +5,7 @@ function add_mac_address() {
 }
 
 
-function submit_mac_address() {
+function submit_mac_address(event) {
     event.preventDefault();
 
     $.ajax({
@@ -30,7 +30,7 @@ function submit_mac_address() {
     });
 };
 
-$('#post_add_person_form').on("submit", function () {
+$('#post_add_person_form').on("submit", function (event) {
     event.preventDefault();
     console.log('create post is working!');
 
@@ -61,7 +61,7 @@ function toggle_edit() {
 
 $('#toggle_edit_person').bind('click', toggle_edit);
 
-function post_edit_person() {
+function post_edit_person(event) {
     event.preventDefault();
 
     var person_id = $('#post_edit_person_form').data('person-id');
