@@ -51,6 +51,12 @@ def test_edit_person_mac(client):
     assert person.first_name == 'f_test'
 
 
+def test_get_delete_person_mac(client):
+    resp = client.get(
+        url_for('api.delete_mac', mac_address='00 00 00 00 00 00'))
+    assert resp.status_code == 200
+
+
 def test_delete_person_mac(client):
     person = PersonFactory()
     resp = client.post(url_for('api.add_mac'),
