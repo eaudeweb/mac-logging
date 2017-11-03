@@ -3,8 +3,17 @@ from datetime import timedelta
 from flask import render_template, request, Response
 from flask.views import MethodView
 
-from clocking.models import db, Person, Entry
+from clocking.models import db, Person, Entry, Address
 from clocking.api.forms import PersonForm, MacForm, SelectForm
+
+
+def filter_persons_addresses():
+    persons = Person.query.join(Address).filter(
+        Address.deleted == False).order_by(Person.first_name)
+    for person in persons:
+        person.addresses = [address for address in person.addresses if
+                    address.deleted is False]
+    return persons
 
 
 class PersonAddView(MethodView):
@@ -45,6 +54,23 @@ class MacAddView(MethodView):
         return Response(json.dumps(data), content_type='application/json')
 
 
+class MacDeleteView(MethodView):
+    def get(self, mac_address):
+        address = db.session.query(Address).get(mac_address)
+        return render_template('delete.html', address=address)
+
+    def post(self, mac_address):
+        address = db.session.query(Address).get(mac_address)
+        address.deleted = True
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+        persons = filter_persons_addresses()
+        return render_template('people.html', persons=persons)
+
+
 class PersonEditView(MethodView):
     def get(self, person_id):
         person = db.session.query(Person).get(person_id)
@@ -72,7 +98,7 @@ class PersonEditView(MethodView):
 class PersonListView(MethodView):
 
     def get(self):
-        persons = Person.query.order_by(Person.first_name)
+        persons = filter_persons_addresses()
         return render_template('people.html', persons=persons)
 
 

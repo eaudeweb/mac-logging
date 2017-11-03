@@ -112,3 +112,4 @@ files/input.txt
 *.env
 
 docker-compose.override.yml
+input.txt
