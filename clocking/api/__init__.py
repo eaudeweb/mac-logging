@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask.ext.script import Manager
+from flask_script import Manager
 
 from clocking.api.view import (MacAddView, PersonAddView, PersonEditView,
                                PersonListView, PersonClockingView, AboutView,

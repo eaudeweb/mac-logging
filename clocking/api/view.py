@@ -9,10 +9,10 @@ from clocking.api.forms import PersonForm, MacForm, SelectForm
 
 def filter_persons_addresses():
     persons = Person.query.join(Address).filter(
-        Address.deleted == False).order_by(Person.first_name)
+        Address.deleted==False).order_by(Person.first_name)
     for person in persons:
         person.addresses = [address for address in person.addresses if
-                    address.deleted is False]
+                            address.deleted is False]
     return persons
 
 
