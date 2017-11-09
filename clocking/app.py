@@ -13,7 +13,6 @@ DEFAULT_CONFIG = {}
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
     app.config.update(DEFAULT_CONFIG)
-    # import pdb; pdb.set_trace()
     if not config:
         app.config.from_pyfile('settings.py', silent=True)
     else:

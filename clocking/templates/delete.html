@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="row">
+    <h1>
+      <p class="col-sm-12">Delete MAC Address</p>
+    </h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      Are you sure you want to delete this <b> {{ address.mac }} </b> address?
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-sm-12">
+      <form method="post">
+        <input class="btn btn-danger" type="submit" value="Delete"/>
+        <a href="{{ url_for('api.people') }}"
+          class="btn btn-default">Cancel</a>
+        </a>
+      </form>
+    </div>
+  </div>
+{% endblock %}

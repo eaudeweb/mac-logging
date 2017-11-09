@@ -1,31 +1,40 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>People</h1>
-<div class="col-sm-8">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>MAC Address</th>
-        <th>Device</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for person in persons %}
+  <div class="row">
+    <h3 class="col-sm-8">
+      <span>People</span>
+      <span class="pull-right">
+        <a href="{{ url_for('api.add') }}">
+          <button type="button" class="btn btn-info">Add person</button>
+        </a>
+      </span>
+    </h3>
+    <div class="col-sm-8">
+      <table class="table">
+        <thead>
         <tr>
-          {% if person.addresses.count() > 0 %}
-            <td rowspan="{{ person.addresses.count() }}">
-              <a href="{{ url_for('api.edit', person_id=person.id) }}">
-                {{ person.first_name }} {{ person.last_name }}
-              </a>
-            </td>
-          {% else %}
-            <td rowspan="1">
-              <a href="{{ url_for('api.edit', person_id=person.id) }}">
-                {{ person.first_name }} {{ person.last_name }}
-              </a>
-            </td>
-          {% endif %}
+          <th>Name</th>
+          <th>MAC Address</th>
+          <th>Device</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for person in persons %}
+          <tr>
+            {% if person.addresses.count() > 0 %}
+              <td rowspan="{{ person.addresses.count() }}">
+                <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                  {{ person.first_name }} {{ person.last_name }}
+                </a>
+              </td>
+            {% else %}
+              <td rowspan="1">
+                <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                  {{ person.first_name }} {{ person.last_name }}
+                </a>
+              </td>
+            {% endif %}
             {% if person.addresses.count() %}
               <td>{{ person.addresses[0].mac }}</td>
               <td>
@@ -40,15 +49,22 @@
                   {{ person.addresses[0].device }}
                 </span>
               </td>
+              <td class="row">
+                <a href="{{ url_for('api.delete_mac', mac_address=person.addresses[0].mac) }}"
+                   class="col-sm-6">
+                  <span class="glyphicon glyphicon-trash"></span>
+                </a>
+              </td>
             {% else %}
               <td></td>
               <td></td>
+              <td></td>
             {% endif %}
-        </tr>
-        {% for address in person.addresses[1:] %}
-          <tr>
-            <td>{{ address.mac }}</td>
-            <td>
+          </tr>
+          {% for address in person.addresses[1:] %}
+            <tr>
+              <td>{{ address.mac }}</td>
+              <td>
               <span class="label label-
                 {%- if address.device == 'mobile' -%}
                   primary
@@ -59,16 +75,18 @@
                 {%- endif -%}">
                 {{ address.device }}
               </span>
-            </td>
-          </tr>
+              </td>
+              <td class="row">
+                <a href="{{ url_for('api.delete_mac', mac_address=person.addresses[0].mac) }}"
+                   class="col-sm-6">
+                  <span class="glyphicon glyphicon-trash"></span>
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
         {% endfor %}
-      {% endfor %}
-    </tbody>
-  </table>
-  <div>
-   <a href="{{ url_for('api.add') }}">
-    <button type="button" class="btn btn-info">Add person</button>
-   </a>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 {% endblock %}

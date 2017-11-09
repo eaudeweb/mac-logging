@@ -43,7 +43,7 @@ def check_new_entries():
     conn = connect_to_db()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM address")
+    c.execute("SELECT * FROM address WHERE address.deleted=0")
     existing_values = c.fetchall()
     existing_addresses = [x[0] for x in existing_values]
 

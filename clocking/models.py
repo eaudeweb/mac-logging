@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, DateTime, UniqueConstraint, ForeignKey
+    Column, Integer, String, DateTime, ForeignKey, Boolean
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import ChoiceType
@@ -19,6 +19,7 @@ class Address(db.Model):
     mac = Column(String(128), primary_key=True)
     device = Column(ChoiceType(DEVICES), nullable=False)
     person_id = Column(ForeignKey('person.id'))
+    deleted = Column(Boolean, default=False)
 
     person = relationship('Person',
                           backref=db.backref('addresses', lazy='dynamic'))
