@@ -1,8 +1,6 @@
-import json
-
 from flask import url_for
 
-from tests.factories import PersonFactory
+from tests.factories import PersonFactory, AddressFactory
 from clocking.models import Person, Address
 
 
@@ -59,17 +57,9 @@ def test_get_delete_person_mac(client):
 
 def test_delete_person_mac(client):
     person = PersonFactory()
-    resp = client.post(url_for('api.add_mac'),
-                       dict(mac='00:00:00:00:00:00', device='mobile',
-                            person=1))
-    assert resp.status_code == 200
-    assert len(Address.query.all()) == 1
-    address = Address.query.first()
-    assert address.deleted is False
-
+    address = AddressFactory()
     resp = client.post(url_for('api.delete_mac', mac_address='00 00 00 00 00 00'))
     assert resp.status_code == 200
-    address = Address.query.first()
     assert address.deleted is True
 
 
