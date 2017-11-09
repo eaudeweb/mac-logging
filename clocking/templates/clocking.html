@@ -23,37 +23,42 @@
     {% endfor %}
   </ul>
 {% endif %}
-<div>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Device</th>
-        <th>In</th>
-        <th>Out</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in entries %}
+{% for entry in entries %}
+  <div class="my-container">
+    <h3 class="data-align">{{ entry.day }}</h3>
+  </div>
+  <div>
+    <table class="table">
+      <thead>
         <tr>
-          <td>{{ entry.mac.person.first_name }} {{ entry.mac.person.last_name }}</td>
-          <td>
-            <span class="label label-
-              {%- if entry.mac.device == 'mobile' -%}
-                primary
-              {% elif entry.mac.device == 'desktop' -%}
-                warning
-              {%- else -%}
-                success
-              {%- endif -%}">
-              {{ entry.mac.device }}
-            </span>
-          </td>
-          <td>{{ entry.startdate }}</td>
-          <td>{{ get_enddate(entry.startdate) }}</td>
+          <th>Name</th>
+          <th>Device</th>
+          <th>In</th>
+          <th>Out</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        {% for entry_by_day in entry.entries_by_day %}
+          <tr>
+            <td>{{ entry_by_day.mac.person.first_name }} {{ entry_by_day.mac.person.last_name }}</td>
+            <td>
+              <span class="label label-
+                {%- if entry_by_day.mac.device == 'mobile' -%}
+                  primary
+                {% elif entry_by_day.mac.device == 'desktop' -%}
+                  warning
+                {%- else -%}
+                  success
+                {%- endif -%}">
+                {{ entry_by_day.mac.device }}
+              </span>
+            </td>
+            <td>{{ entry_by_day.startdate.strftime('%H:%M') }}</td>
+            <td>{{ get_enddate(entry_by_day.startdate) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
 {% endblock %}
