@@ -128,7 +128,6 @@ class PersonClockingView(MethodView):
 
     def get(self):
         form = SelectForm()
-
         start_date, end_date = date.today(), date.today()
         if request.args:
             form = SelectForm(request.args)
@@ -138,7 +137,6 @@ class PersonClockingView(MethodView):
 
         days = self.get_days(start_date, end_date)
         entries = self.get_all_entries(days)
-
         return render_template('clocking.html', form=form, entries=entries)
 
 

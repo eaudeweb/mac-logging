@@ -1,17 +1,18 @@
 {% extends "layout.html" %}
+{% block style %}
+  <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css" />
+  <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+{% endblock %}
 {% block content %}
 <h1>Working time</h1>
-<div>
-  <form method="get" action="" role="form">
-    <div class="col-sm-5">
-      {{ form.start_date(class="dtpick form-control", placeholder="Start date", autocomplete='off') }}
-    </div>
-    <div class="col-sm-5">
-      {{ form.end_date(class="dtpick form-control", placeholder="End date", autocomplete='off') }}
-    </div>
-    <button type="submit" class="btn btn-info">Filter</button>
-  </form>
-</div>
+  <div id="reportrange" class="center-block"
+       style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; alignment: center">
+    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+    <span></span> <b class="caret"></b>
+  </div>
 {% if form.errors %}
   <ul class="errors">
     {% for field_name, field_errors in form.errors|dictsort if field_errors %}
@@ -23,9 +24,12 @@
     {% endfor %}
   </ul>
 {% endif %}
+<div id="clocking">
 {% for entry in entries %}
   <div class="my-container">
-    <h3 class="data-align">{{ entry.day }}</h3>
+    <h3 class="data-align">
+      {{ entry.day.strftime('%B') }} {{ entry.day.strftime('%d') }}, {{ entry.day.strftime('%Y') }}
+    </h3>
   </div>
   <div>
     <table class="table">
@@ -61,4 +65,55 @@
     </table>
   </div>
 {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+  <script type="text/javascript">
+      $.urlParam = function (name) {
+          var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+          if (results == null) {
+              return null;
+          }
+          else {
+              return results[1] || 0;
+          }
+      };
+
+      $(function () {
+          start_date = $.urlParam('start_date');
+          end_date = $.urlParam('end_date');
+          if (start_date && end_date) {
+              var start = moment(start_date, 'DD/MM/YYYY');
+              var end =  moment(end_date, 'DD/MM/YYYY');
+          }
+          else {
+              var start = moment();
+              var end = moment();
+          }
+
+
+          function cb(start, end) {
+              $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+          }
+          $('#reportrange').daterangepicker({
+              startDate: start,
+              endDate: end,
+              ranges: {
+                  'Today': [moment(), moment()],
+                  'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                  'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                  'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                  'This Month': [moment().startOf('month'), moment().endOf('month')],
+                  'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+              }
+          }, cb);
+          cb(start, end);
+          $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+              start_date = picker.startDate.format('DD/MM/YYYY');
+              end_date = picker.endDate.format('DD/MM/YYYY');
+              url = "/?start_date=" + start_date + "&" + "end_date=" + end_date;
+              window.location.href = url;
+          });
+      });
+  </script>
 {% endblock %}
