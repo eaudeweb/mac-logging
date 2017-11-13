@@ -119,7 +119,7 @@ class PersonClockingView(MethodView):
     def get_all_entries(self, days):
         entries = []
         for day in days:
-            entry = dict()
+            entry = {}
             entry['day'] = day
             entry['entries_by_day'] = self.get_entries_by_day(day).all()
             if entry['entries_by_day']:
