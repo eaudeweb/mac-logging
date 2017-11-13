@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import timedelta, date
 from flask import render_template, request, Response
 from flask.views import MethodView
 
@@ -103,27 +103,40 @@ class PersonListView(MethodView):
 
 
 class PersonClockingView(MethodView):
-    def get_entries_by_interval(self, start_date, end_date):
+    def get_entries_by_day(self, day):
         entries = Entry.query
-        if start_date and end_date:
-            return entries.filter(Entry.startdate >= start_date).filter(
-                Entry.startdate <= end_date + timedelta(hours=24)).order_by(
-                Entry.startdate)
-        else:
-            return entries.all()
+        return entries.filter(Entry.startdate >= day).filter(
+            Entry.startdate <= day + timedelta(hours=24)).order_by(
+            Entry.startdate)
+
+    def get_days(self, start_date, end_date):
+        interval = end_date - start_date
+        days = []
+        for i in range(interval.days + 1):
+            days.append(start_date + timedelta(days=i))
+        return days
+
+    def get_all_entries(self, days):
+        entries = []
+        for day in days:
+            entry = {}
+            entry['day'] = day
+            entry['entries_by_day'] = self.get_entries_by_day(day).all()
+            if entry['entries_by_day']:
+                entries.append(entry)
+        return entries
 
     def get(self):
         form = SelectForm()
-
-        start_date, end_date = None, None
+        start_date, end_date = date.today(), date.today()
         if request.args:
             form = SelectForm(request.args)
             if form.validate():
                 start_date = form.data.get('start_date')
                 end_date = form.data.get('end_date')
 
-        entries = self.get_entries_by_interval(start_date, end_date)
-
+        days = self.get_days(start_date, end_date)
+        entries = self.get_all_entries(days)
         return render_template('clocking.html', form=form, entries=entries)
 
 

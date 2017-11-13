@@ -32,7 +32,7 @@ def utility_processor():
     def get_enddate(enddate):
         enddate += timedelta(hours=8)
         if enddate < datetime.now():
-            return enddate
+            return enddate.strftime('%H:%M')
         else:
             return '-'
     return dict(get_enddate=get_enddate)
