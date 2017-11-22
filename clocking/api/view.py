@@ -1,19 +1,15 @@
 import json
-from datetime import timedelta, date
-from flask import render_template, request, Response
+from datetime import timedelta, date, datetime
+from flask import render_template, request, Response, send_from_directory
 from flask.views import MethodView
 
 from clocking.models import db, Person, Entry, Address
 from clocking.api.forms import PersonForm, MacForm, SelectForm
+from clocking.api.generate_report import generate_report
 
+from instance.settings import REPORT_DIR, REPORT_FILE
 
-def filter_persons_addresses():
-    persons = Person.query.join(Address).filter(
-        Address.deleted==False).order_by(Person.first_name)
-    for person in persons:
-        person.addresses = [address for address in person.addresses if
-                            address.deleted is False]
-    return persons
+import os
 
 
 class PersonAddView(MethodView):
@@ -55,6 +51,7 @@ class MacAddView(MethodView):
 
 
 class MacDeleteView(MethodView):
+
     def get(self, mac_address):
         address = db.session.query(Address).get(mac_address)
         return render_template('delete.html', address=address)
@@ -72,6 +69,7 @@ class MacDeleteView(MethodView):
 
 
 class PersonEditView(MethodView):
+
     def get(self, person_id):
         person = db.session.query(Person).get(person_id)
         person_form = PersonForm()
@@ -103,28 +101,6 @@ class PersonListView(MethodView):
 
 
 class PersonClockingView(MethodView):
-    def get_entries_by_day(self, day):
-        entries = Entry.query
-        return entries.filter(Entry.startdate >= day).filter(
-            Entry.startdate <= day + timedelta(hours=24)).order_by(
-            Entry.startdate)
-
-    def get_days(self, start_date, end_date):
-        interval = end_date - start_date
-        days = []
-        for i in range(interval.days + 1):
-            days.append(start_date + timedelta(days=i))
-        return days
-
-    def get_all_entries(self, days):
-        entries = []
-        for day in days:
-            entry = {}
-            entry['day'] = day
-            entry['entries_by_day'] = self.get_entries_by_day(day).all()
-            if entry['entries_by_day']:
-                entries.append(entry)
-        return entries
 
     def get(self):
         form = SelectForm()
@@ -134,13 +110,63 @@ class PersonClockingView(MethodView):
             if form.validate():
                 start_date = form.data.get('start_date')
                 end_date = form.data.get('end_date')
+        days = get_days(start_date, end_date)
+        entries = get_all_entries(days)
+        return render_template('clocking.html', form=form, entries=entries,
+                               start_date=start_date, end_date=end_date)
 
-        days = self.get_days(start_date, end_date)
-        entries = self.get_all_entries(days)
-        return render_template('clocking.html', form=form, entries=entries)
+
+class DownloadView(MethodView):
+
+    def get(self, start_date, end_date):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        days = get_days(start_date, end_date)
+        entries = get_all_entries(days)
+        generate_report(entries)
+        file = send_from_directory(directory=REPORT_DIR,
+                                   filename=REPORT_FILE,
+                                   as_attachment=True)
+        os.remove(REPORT_DIR + REPORT_FILE)
+        return file
 
 
 class AboutView(MethodView):
 
     def get(self):
         return render_template('about.html')
+
+
+def filter_persons_addresses():
+    persons = Person.query.join(Address).filter(
+        Address.deleted==False).order_by(Person.first_name)
+    for person in persons:
+        person.addresses = [address for address in person.addresses if
+                            address.deleted is False]
+    return persons
+
+
+def get_days(start_date, end_date):
+    interval = end_date - start_date
+    days = []
+    for i in range(interval.days + 1):
+        days.append(start_date + timedelta(days=i))
+    return days
+
+
+def get_all_entries(days):
+    entries = []
+    for day in days:
+        entry = {}
+        entry['day'] = day
+        entry['entries_by_day'] = get_entries_by_day(day).all()
+        if entry['entries_by_day']:
+            entries.append(entry)
+    return entries
+
+
+def get_entries_by_day(day):
+    entries = Entry.query
+    return entries.filter(Entry.startdate >= day).filter(
+        Entry.startdate <= day + timedelta(hours=24)).order_by(
+        Entry.startdate)
