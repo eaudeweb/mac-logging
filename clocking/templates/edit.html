@@ -7,9 +7,11 @@
 
 <div id="mac_listing">
   {% for address in person.addresses %}
-    <div class="well visible"><b>MAC</b>: {{ address.mac }}</div>
-    <div class="well visible"><b>Device</b>: {{ address.device }}</div>
-    <br>
+    {% if address.deleted == False %}
+      <div class="well visible"><b>MAC</b>: {{ address.mac }}</div>
+      <div class="well visible"><b>Device</b>: {{ address.device }}</div>
+      <br>
+    {% endif %}
   {% endfor %}
 </div>
 <button id="add_mac_address_button" type="submit" class="btn btn-default">
