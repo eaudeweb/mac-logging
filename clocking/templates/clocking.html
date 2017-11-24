@@ -7,22 +7,15 @@
   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 {% endblock %}
 {% block content %}
-<h1>Working time</h1>
-  <div id="reportrange" class="report-range">
-    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-    <span></span> <b class="caret"></b>
-  </div>
-{% if form.errors %}
-  <ul class="errors">
-    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-      {% for error in field_errors %}
-        <div class="alert alert-danger">
-          {{ form[field_name].label }}: {{ error }}
-        </div>
-      {% endfor %}
-    {% endfor %}
-  </ul>
-{% endif %}
+<h1 style="display: inline-block;">Working time</h1>
+<span class="pull-right">
+  <a href="{{ url_for('api.download', start_date=start_date, end_date=end_date) }}"
+     class="btn btn-success">Download</a>
+</span>
+<div id="reportrange" class="report-range">
+  <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+  <span></span> <b class="caret"></b>
+</div>
 <div id="clocking">
 {% for entry in entries %}
   <div class="my-container">
