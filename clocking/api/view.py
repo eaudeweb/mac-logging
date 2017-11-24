@@ -1,4 +1,6 @@
 import json
+import os
+
 from datetime import timedelta, date, datetime
 from flask import render_template, request, Response, send_from_directory
 from flask.views import MethodView
@@ -8,8 +10,6 @@ from clocking.api.forms import PersonForm, MacForm, SelectForm
 from clocking.api.generate_report import generate_report
 
 from instance.settings import REPORT_DIR, REPORT_FILE
-
-import os
 
 
 class PersonAddView(MethodView):
