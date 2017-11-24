@@ -11,3 +11,7 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///{database}'.format(
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+
+REPORT_DIR = (os.path.dirname(os.path.dirname(__file__))) + '/files/'
+
+REPORT_FILE = 'Report.xlsx'
