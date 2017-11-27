@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 
 import argparse
-import datetime
 import os.path
 import sqlite3
 import time
 from datetime import datetime, timedelta
-
 from flask_script import Manager
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 
 from clocking.app import app
+from clocking.models import Address, Person, Entry
 
 
 manager = Manager(app)
 db_manager = Manager()
 manager.add_command('db', db_manager)
+
+db = SQLAlchemy()
 
 
 def connect_to_db():
@@ -40,49 +43,41 @@ def get_time():
 
 @manager.command
 def check_new_entries():
-    conn = connect_to_db()
-    c = conn.cursor()
-
-    c.execute("SELECT * FROM address WHERE address.deleted=0")
-    existing_values = c.fetchall()
-    existing_addresses = [x[0] for x in existing_values]
-
+    existing_addresses = [address.mac for address in
+                          Address.query.filter(Address.deleted == False).all()]
     addresses = parse()
     last_modified = get_time()
     new_entries = []
+    persons_ids = []
     for address in addresses:
         if address in existing_addresses:
-            c.execute("SELECT * FROM person JOIN address "
-                      "ON address.person_id = person.id "
-                      "AND address.mac=?", (address, ))
-            person_details = c.fetchone()
-            new_entries.append((address, person_details[1], person_details[2]))
+            person_details = Person.query.join(Person.addresses).filter_by(
+                mac=address
+            ).first()
+            if person_details.id in persons_ids:
+                continue
+            new_entries.append((
+                address,
+                person_details.last_name,
+                person_details.first_name
+            ))
+            persons_ids.append(person_details.id)
 
-    c.execute("SELECT (id) FROM entry ORDER BY id DESC LIMIT 1")
-    curr_id = c.fetchone()
-    if curr_id is None:
-        curr_id = 1
-    else:
-        curr_id = curr_id[0] + 1
+    startdate_datetime = last_modified.replace(minute=00, hour=00, second=00)
 
-    values = []
-
-    startdate_datetime = last_modified
-    startdate_string = datetime.strftime(startdate_datetime, '%Y-%m-%d %H:%M:%S')
-    for new_entry in new_entries:
-        c.execute("SELECT * FROM address a JOIN entry e ON a.mac = e.mac_id "
-                  "JOIN person p ON p.id = a.person_id "
-                  "WHERE p.last_name=? "
-                  "AND p.first_name=? "
-                  "AND DATE(e.startdate)=?", (new_entry[1], new_entry[2], startdate_datetime.date()))
-        if len(c.fetchall()) == 0:
-            values.append((curr_id, new_entry[0], startdate_string))
-            curr_id += 1
-
-    conn.executemany("INSERT INTO entry VALUES (?, ?, ?)", values)
-    conn.commit()
-
-    conn.close()
+    for address, last_name, first_name in new_entries:
+        find_any_values = Entry.query.filter(
+            and_(Entry.startdate >= startdate_datetime.date(),
+                 Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
+        ).join(Entry.mac).join(Address.person).filter_by(
+            last_name=last_name,
+            first_name=first_name
+        )
+        if find_any_values.count() == 0:
+            entry = Entry(**{'mac_id': address,
+                             'startdate': last_modified})
+            db.session.add(entry)
+            db.session.commit()
 
 
 @db_manager.option('alembic_args', nargs=argparse.REMAINDER)
