@@ -5,7 +5,8 @@ from clocking.models import Person, Address
 
 
 def test_first_page(client):
-    resp = client.get(url_for('api.clocking'))
+    resp = client.get(url_for('api.clocking'),
+                      dict(start_date='01/01/2017', end_date='01/01/2017'))
     assert resp.status_code == 200
 
 

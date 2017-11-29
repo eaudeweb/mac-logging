@@ -73,27 +73,8 @@ class MacForm(Form):
         return address
 
 
-def validate_mac_address_unique_edit(form, field):
-    if field.data is not u'':
-        person_mac = Address.query.filter(Address.mac == field.data)
-        if person_mac.count() > 1:
-            raise ValidationError('MAC Address already exists.')
-        elif person_mac.count() == 1:
-            person_mac = person_mac.first()
-            if form.last_name.data != person_mac.last_name and \
-                            form.first_name.data != person_mac.first_name:
-                raise ValidationError('MAC Address already exists.')
-
-
-def validate_start_date(form, field):
-    if form.end_date.data:
-        if field.data > form.end_date.data:
-            raise ValidationError('Start date must be lower than end date.')
-
-
 class SelectForm(Form):
     start_date = DateField('Start date', format="%d/%m/%Y",
-                           validators=[validators.required(),
-                                       validate_start_date])
+                           validators=[validators.required()])
     end_date = DateField('End date', format="%d/%m/%Y",
                          validators=[validators.required()])
