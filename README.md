@@ -43,10 +43,11 @@ devices.
         cd mac-logging
         git pull origin master
 
-1. Update the application stack, all services should be "Up" :
+1. Update the application stack (all services should be "Up") and run migrations:
 
         docker-compose up -d
         docker-compose ps
+        docker exec pontaj.app python manage.py db alembic upgrade head
 
 1. See it in action: <http://localhost:5000>
 
