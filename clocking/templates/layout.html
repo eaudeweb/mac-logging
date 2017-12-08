@@ -7,18 +7,23 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css')}}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
   <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
   <script src="{{ url_for('static', filename='js/jquery-1.10.2.js')}}"></script>
   <script src="{{ url_for('static', filename='js/jquery-ui.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
   {% block style %}
   {% endblock %}
 </head>
 <body>
   <div class="container center-block">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active"><a href="{{ url_for('api.clocking') }}">Hours</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('api.clocking') }}">Hours</a></li>
       <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
-      <li class="breadcrumb-item active"><a href="{{ url_for('api.about') }}">About</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('api.about') }}">About</a></li>
+      {% if session['logged_in'] %}
+        <li class="breadcrumb-item pull-right"><a href="{{ url_for('api.logout') }}">Log out</a></li>
+      {% else %}
+        <li class="breadcrumb-item pull-right"><a href="{{ url_for('api.login') }}">Log in</a></li>
+      {% endif %}
     </ol>
     {% block content %}{% endblock %}
   </div>

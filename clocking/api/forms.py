@@ -78,3 +78,8 @@ class SelectForm(Form):
                            validators=[validators.required()])
     end_date = DateField('End date', format="%d/%m/%Y",
                          validators=[validators.required()])
+
+
+class LoginForm(Form):
+    username = TextAreaField()
+    password = TextAreaField()
