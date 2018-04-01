@@ -24,6 +24,9 @@ class Address(db.Model):
     person = relationship('Person',
                           backref=db.backref('addresses', lazy='dynamic'))
 
+    def __unicode__(self):
+        return self.mac
+
 
 class Person(db.Model):
     """ Person model """
@@ -31,6 +34,9 @@ class Person(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=False)
+
+    def __unicode__(self):
+        return self.first_name + ' ' + self.last_name
 
 
 class Entry(db.Model):

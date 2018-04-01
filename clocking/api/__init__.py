@@ -3,7 +3,7 @@ from flask_script import Manager
 
 from clocking.api.view import (MacAddView, PersonAddView, PersonEditView,
                                PersonListView, PersonClockingView, AboutView,
-                               MacDeleteView, DownloadView)
+                               MacDeleteView, DownloadView, LoginView, LogoutView)
 
 api = Blueprint('api', __name__)
 api_manager = Manager()
@@ -16,3 +16,5 @@ api.add_url_rule('/people', view_func=PersonListView.as_view('people'))
 api.add_url_rule('/', view_func=PersonClockingView.as_view('clocking'))
 api.add_url_rule('/download/<start_date>/<end_date>', view_func=DownloadView.as_view('download'))
 api.add_url_rule('/about', view_func=AboutView.as_view('about'))
+api.add_url_rule('/login', view_func=LoginView.as_view('login'))
+api.add_url_rule('/logout', view_func=LogoutView.as_view('logout'))

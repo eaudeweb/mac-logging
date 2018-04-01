@@ -2,11 +2,11 @@ import json
 import os
 
 from datetime import timedelta, date, datetime
-from flask import render_template, request, Response, send_from_directory
+from flask import render_template, request, redirect, Response, send_from_directory, session, flash
 from flask.views import MethodView
 
 from clocking.models import db, Person, Entry, Address
-from clocking.api.forms import PersonForm, MacForm, SelectForm
+from clocking.api.forms import PersonForm, MacForm, SelectForm, LoginForm
 from clocking.api.generate_report import generate_report
 
 from instance.settings import REPORT_DIR, REPORT_FILE
@@ -131,10 +131,39 @@ class DownloadView(MethodView):
         return file
 
 
+class LoginView(MethodView):
+    url = '/'
+
+    def get(self):
+        if not session.get('logged_in'):
+            return render_template('login.html')
+        else:
+            return "You are already logged in!"
+
+    def post(self):
+        form = LoginForm(request.form)
+        if form.username.data == 'admin' and form.password.data == 'admin':
+            session['logged_in'] = True
+
+        return redirect(self.url, code=302)
+
+
+class LogoutView(MethodView):
+    url = '/'
+
+    def get(self):
+        if session.get('logged_in'):
+            session['logged_in'] = False
+            return redirect(self.url, code=302)
+        else:
+            return "You are already logged out!"
+
+
 class AboutView(MethodView):
 
     def get(self):
         return render_template('about.html')
+
 
 
 def filter_persons_addresses():
