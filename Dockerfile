@@ -4,7 +4,7 @@ MAINTAINER "Cătălin Jitea <catalin.jitea@eaudeweb.ro"
 ENV WORK_DIR=/var/local/pontaj \
     TZ=Europe/Bucharest
 
-RUN runDeps="tzdata net-snmp-tools sqlite sqlite-dev" \
+RUN runDeps="tzdata net-snmp-tools gcc python-dev musl-dev postgresql-dev" \
     && apk add -U --no-cache $runDeps \
     && mkdir -p $WORK_DIR/files
 

@@ -6,6 +6,7 @@ services:
     image: eaudeweb/mac-logging:0.4.3
     env_file:
     - ./docker/app.env
+    - ./docker/postgres.env
     volumes:
     - data:/var/local/pontaj/files
 
@@ -14,6 +15,14 @@ services:
     entrypoint: ["./cronjobs-entrypoint.sh"]
     volumes:
     - data:/var/local/pontaj/files
+
+  postgres:
+    image: postgres:9-alpine
+    container_name: pontaj.db
+    env_file:
+    - ./docker/postgres.env
+    volumes:
+    - data:/var/local/pontaj/postgresql
 
 volumes:
   data:
