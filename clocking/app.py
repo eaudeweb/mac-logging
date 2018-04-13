@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime, timedelta
 
-from flask import Flask
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
+from flask import Flask, url_for
+from flask_admin import Admin, helpers as admin_helpers
+from flask_security import Security, SQLAlchemyUserDatastore
 
-from .api import api
-from .models import db, Person, Address, Entry
+from .api import api, view
+from .models import db, Person, Address, Entry, User, Role
 
 DEFAULT_CONFIG = {}
 
@@ -20,10 +18,6 @@ def create_app(config={}):
     else:
         app.config.update(config)
     db.init_app(app)
-    admin = Admin(app, name='Clocking', template_mode='bootstrap3')
-    admin.add_view(ModelView(Person, db.session))
-    admin.add_view(ModelView(Address, db.session))
-    admin.add_view(ModelView(Entry, db.session))
     app.register_blueprint(api)
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
@@ -31,7 +25,35 @@ def create_app(config={}):
 
     return app
 
+
 app = create_app()
+
+
+admin = Admin(app,
+              name='Clocking',
+              base_template='my_master.html',
+              template_mode='bootstrap3')
+
+admin.add_view(view.ProtectedModelView(Role, db.session))
+admin.add_view(view.ProtectedModelView(User, db.session))
+admin.add_view(view.ProtectedModelView(Person, db.session))
+admin.add_view(view.ProtectedModelView(Address, db.session))
+admin.add_view(view.ProtectedModelView(Entry, db.session))
+
+# Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+
+
+@security.context_processor
+def security_context_processor():
+    return dict(
+        admin_base_template=admin.base_template,
+        admin_view=admin.index_view,
+        h=admin_helpers,
+        get_url=url_for
+    )
+
 
 @app.context_processor
 def utility_processor():
