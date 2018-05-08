@@ -5,8 +5,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy_utils import ChoiceType
 from flask_security import UserMixin, RoleMixin, current_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
 
 db = SQLAlchemy()
+db_manager = Manager()
+
 
 class Role(db.Model, RoleMixin):
     __tablename__ = 'role'
@@ -18,8 +21,6 @@ class Role(db.Model, RoleMixin):
     name = db.Column(ChoiceType(ROLES), unique=True)
     users = Column(ForeignKey('user.id'))
 
-
-
     def __str__(self):
         return self.name
 
@@ -29,12 +30,10 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    person_id = Column(Integer, ForeignKey('person.id'))
 
-    person = relationship('Person',
-                          backref=db.backref('user_person'),
-                          uselist=False)
-    roles = relationship('Role',
-                         backref=db.backref('users_role'))
+    roles = relationship('Role', backref=db.backref('users_role'))
 
     def __unicode__(self):
         return self.email
@@ -66,7 +65,7 @@ class Person(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=False)
-    user_id = Column(ForeignKey('user.id'))
+    user = relationship("User", uselist=False, backref="person")
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name

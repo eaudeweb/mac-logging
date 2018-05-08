@@ -13,6 +13,9 @@ services:
   cronjobs:
     image: eaudeweb/mac-logging:0.4.3
     entrypoint: ["./cronjobs-entrypoint.sh"]
+    env_file:
+    - ./docker/app.env
+    - ./docker/postgres.env
     volumes:
     - data:/var/local/pontaj/files
 

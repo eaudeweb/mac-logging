@@ -1,6 +1,5 @@
 import re
 
-from datetime import timedelta
 from wtforms import DateField
 
 from wtforms import Form, TextAreaField, IntegerField, validators
@@ -32,7 +31,8 @@ class PersonForm(Form):
             db.session.add(person)
         try:
             db.session.commit()
-        except:
+        except Exception as e:
+            print(e)
             db.session.rollback()
 
         return person

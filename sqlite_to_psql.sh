@@ -20,10 +20,15 @@ sed -i -r -- 's/INSERT INTO address VALUES\((.*),(.*),(.*),0\)/INSERT INTO addre
 #createdb -U $PG_USER_NAME $PG_DB_NAME
 psql $PG_DB_NAME $PG_USER_NAME < $SQLITE_DUMP_FILE
 
-# Update Postgres sequences.
-psql $PG_DB_NAME $PG_USER_NAME -c "\ds" | grep sequence | cut -d'|' -f2 | tr -d '[:blank:]' |
-while read sequence_name; do
-  table_name=${sequence_name%_id_seq}
+# Create sequences
+psql $PG_DB_NAME $PG_USER_NAME -c "CREATE SEQUENCE person_id_seq;"
+psql $PG_DB_NAME $PG_USER_NAME -c "CREATE SEQUENCE address_id_seq;"
+psql $PG_DB_NAME $PG_USER_NAME -c "CREATE SEQUENCE entry_id_seq;"
 
-  psql $PG_DB_NAME $PG_USER_NAME -c "select setval('$sequence_name', (select max(id) from $table_name))"
-done
+
+# Update Postgres sequences.
+psql $PG_DB_NAME $PG_USER_NAME -c "select setval('person_id_seq', (select max(id) from person))"
+psql $PG_DB_NAME $PG_USER_NAME -c "select setval('entry_id_seq', (select max(id) from entry))"
+
+psql $PG_DB_NAME $PG_USER_NAME -c "ALTER TABLE person ALTER id SET DEFAULT NEXTVAL('person_id_seq')"
+psql $PG_DB_NAME $PG_USER_NAME -c "ALTER TABLE entry ALTER id SET DEFAULT NEXTVAL('entry_id_seq')"

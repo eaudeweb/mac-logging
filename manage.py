@@ -2,26 +2,25 @@
 
 import argparse
 import os.path
-import sqlite3
+import sys
+import re
 import time
+
 from datetime import datetime, timedelta
-from flask_script import Manager
+from flask_script import Manager, prompt, prompt_pass
+from flask_security import SQLAlchemyUserDatastore, utils
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 
 from clocking.app import app
-from clocking.models import Address, Person, Entry
-
+from clocking.models import Address, Person, Entry, User, Role, db
 
 manager = Manager(app)
 db_manager = Manager()
 manager.add_command('db', db_manager)
 
-db = SQLAlchemy()
 
-
-def connect_to_db():
-    return sqlite3.connect("/var/local/pontaj/files/mac_logging.db")
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 def parse():
@@ -78,6 +77,27 @@ def check_new_entries():
                              'startdate': last_modified})
             db.session.add(entry)
             db.session.commit()
+
+
+@manager.command
+def createsuperuser():
+    email = prompt('User email')
+    if not EMAIL_REGEX.match(email):
+        sys.exit('\nCould not create user: Invalid E-Mail addresss')
+
+    password = prompt_pass('User password')
+    password_confirm = prompt_pass('Confirmed password')
+    if not password == password_confirm:
+        sys.exit('\nCould not create user: Passwords did not match')
+
+    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    user_datastore.create_user(
+        email=email,
+        password=utils.encrypt_password(password)
+    )
+    db.session.commit()
+    user_datastore.add_role_to_user(email, 'superuser')
+    db.session.commit()
 
 
 @db_manager.option('alembic_args', nargs=argparse.REMAINDER)

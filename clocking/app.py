@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
 
 from flask import Flask, url_for
-from flask_admin import Admin, helpers as admin_helpers
-from flask_security import Security, SQLAlchemyUserDatastore
+from flask_admin import helpers as admin_helpers
+from flask_mail import Mail
+from flask_security import Security, SQLAlchemyUserDatastore, utils
+from flask_sqlalchemy import SQLAlchemy
 
 from .api import api, view
-from .models import db, Person, Address, Entry, User, Role
+from .models import db, User, Role
+from .admin import admin
 
 DEFAULT_CONFIG = {}
 
@@ -19,6 +22,7 @@ def create_app(config={}):
         app.config.update(config)
     db.init_app(app)
     app.register_blueprint(api)
+    admin.init_app(app)
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
         Sentry(app)
@@ -29,20 +33,22 @@ def create_app(config={}):
 app = create_app()
 
 
-admin = Admin(app,
-              name='Clocking',
-              base_template='my_master.html',
-              template_mode='bootstrap3')
-
-admin.add_view(view.ProtectedModelView(Role, db.session))
-admin.add_view(view.ProtectedModelView(User, db.session))
-admin.add_view(view.ProtectedModelView(Person, db.session))
-admin.add_view(view.ProtectedModelView(Address, db.session))
-admin.add_view(view.ProtectedModelView(Entry, db.session))
-
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
+mail = Mail(app)
+
+
+@app.before_first_request
+def before_first_request():
+    user_datastore.find_or_create_role(name='superuser')
+    user_datastore.find_or_create_role(name='user')
+    # encrypted_password = utils.encrypt_password('password')
+    # if not user_datastore.get_user('admin@email.com'):
+    #     user_datastore.create_user(email='admin@email.com', password=encrypted_password)
+    # db.session.commit()
+    # user_datastore.add_role_to_user('admin@email.com', 'superuser')
+    db.session.commit()
 
 
 @security.context_processor
