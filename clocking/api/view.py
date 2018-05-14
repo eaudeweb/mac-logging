@@ -2,14 +2,38 @@ import json
 import os
 
 from datetime import timedelta, date, datetime
-from flask import render_template, request, redirect, Response, send_from_directory, session, flash
+from flask import render_template, request, redirect, Response, send_from_directory, session, url_for, abort
 from flask.views import MethodView
+from flask_admin.contrib import sqla
+from flask_security import current_user
 
 from clocking.models import db, Person, Entry, Address
 from clocking.api.forms import PersonForm, MacForm, SelectForm, LoginForm
 from clocking.api.generate_report import generate_report
 
 from instance.settings import REPORT_DIR, REPORT_FILE
+
+
+class ProtectedModelView(sqla.ModelView):
+
+    def is_accessible(self):
+        if not current_user.is_active or not current_user.is_authenticated:
+            return False
+
+        if current_user.has_role('superuser'):
+            return True
+
+        return False
+
+    def _handle_view(self, name, **kwargs):
+        """
+        Override builtin _handle_view in order to redirect users when a view is not accessible.
+        """
+        if not self.is_accessible():
+            if current_user.is_authenticated:
+                abort(403)
+            else:
+                return redirect(url_for('security.login', next=request.url))
 
 
 class PersonAddView(MethodView):
@@ -131,39 +155,10 @@ class DownloadView(MethodView):
         return file
 
 
-class LoginView(MethodView):
-    url = '/'
-
-    def get(self):
-        if not session.get('logged_in'):
-            return render_template('login.html')
-        else:
-            return "You are already logged in!"
-
-    def post(self):
-        form = LoginForm(request.form)
-        if form.username.data == 'admin' and form.password.data == 'admin':
-            session['logged_in'] = True
-
-        return redirect(self.url, code=302)
-
-
-class LogoutView(MethodView):
-    url = '/'
-
-    def get(self):
-        if session.get('logged_in'):
-            session['logged_in'] = False
-            return redirect(self.url, code=302)
-        else:
-            return "You are already logged out!"
-
-
 class AboutView(MethodView):
 
     def get(self):
         return render_template('about.html')
-
 
 
 def filter_persons_addresses():

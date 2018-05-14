@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime, timedelta
 
-from flask import Flask
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
+from flask import Flask, url_for
+from flask_admin import helpers as admin_helpers
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_security import Security, SQLAlchemyUserDatastore
 
-from .api import api
-from .models import db, Person, Address, Entry
+from .api import api, view
+from .models import db, User, Role
+from .admin import admin
 
 DEFAULT_CONFIG = {}
 
@@ -20,18 +21,48 @@ def create_app(config={}):
     else:
         app.config.update(config)
     db.init_app(app)
-    admin = Admin(app, name='Clocking', template_mode='bootstrap3')
-    admin.add_view(ModelView(Person, db.session))
-    admin.add_view(ModelView(Address, db.session))
-    admin.add_view(ModelView(Entry, db.session))
     app.register_blueprint(api)
+    admin.init_app(app)
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
         Sentry(app)
 
     return app
 
+
 app = create_app()
+
+# Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+mail = Mail(app)
+
+
+@app.before_first_request
+def before_first_request():
+    user_datastore.find_or_create_role(name='superuser')
+    user_datastore.find_or_create_role(name='user')
+    # encrypted_password = utils.encrypt_password('password')
+    # if not user_datastore.get_user('admin@email.com'):
+    #     user_datastore.create_user(email='admin@email.com', password=encrypted_password)
+    # db.session.commit()
+    # user_datastore.add_role_to_user('admin@email.com', 'superuser')
+    db.session.commit()
+
+
+@security.context_processor
+def security_context_processor():
+    return dict(
+        admin_base_template=admin.base_template,
+        admin_view=admin.index_view,
+        h=admin_helpers,
+        get_url=url_for
+    )
+
 
 @app.context_processor
 def utility_processor():

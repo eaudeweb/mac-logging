@@ -3,9 +3,40 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import ChoiceType
+from flask_security import UserMixin, RoleMixin, current_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
 
 db = SQLAlchemy()
+db_manager = Manager()
+
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'role'
+    ROLES = [
+        (u'superuser', u'Superuser'),
+        (u'user', u'User')
+    ]
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    name = db.Column(ChoiceType(ROLES), unique=True)
+    users = Column(ForeignKey('user.id'))
+
+    def __str__(self):
+        return self.name
+
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    person_id = Column(Integer, ForeignKey('person.id'))
+
+    roles = relationship('Role', backref=db.backref('users_role'))
+
+    def __unicode__(self):
+        return self.email
 
 
 class Address(db.Model):
@@ -24,7 +55,7 @@ class Address(db.Model):
     person = relationship('Person',
                           backref=db.backref('addresses', lazy='dynamic'))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.mac
 
 
@@ -34,8 +65,9 @@ class Person(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=False)
+    user = relationship("User", uselist=False, backref="person")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.first_name + ' ' + self.last_name
 
 

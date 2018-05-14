@@ -67,8 +67,3 @@ def test_delete_person_mac(client):
 def test_about(client):
     resp = client.get(url_for('api.about'))
     assert resp.status_code == 200
-
-
-def test_get_login_page(client):
-    resp = client.get(url_for('api.login'))
-    assert resp.status_code == 200
