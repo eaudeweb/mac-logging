@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 
 from flask import Flask, url_for
 from flask_admin import helpers as admin_helpers
+from flask_login import LoginManager
 from flask_mail import Mail
-from flask_security import Security, SQLAlchemyUserDatastore, utils
-from flask_sqlalchemy import SQLAlchemy
+from flask_security import Security, SQLAlchemyUserDatastore
 
 from .api import api, view
 from .models import db, User, Role
@@ -32,6 +32,9 @@ def create_app(config={}):
 
 app = create_app()
 
+# Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)

@@ -33,6 +33,12 @@ devices.
 
         docker-compose up -d
         docker-compose ps
+        
+1. Run tests:
+
+        docker exec -it pontaj.app sh
+        pip install -r requirements-dev.txt
+        py.test --cov=clocking tests
 
 1. See it in action: <http://localhost:5000>
 
