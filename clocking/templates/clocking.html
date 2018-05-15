@@ -8,10 +8,18 @@
 {% endblock %}
 {% block content %}
 <h1 style="display: inline-block;">Working time</h1>
-<span class="pull-right">
-  <a href="{{ url_for('api.download', start_date=start_date, end_date=end_date) }}"
-     class="btn btn-mini btn-primary">Download</a>
-</span>
+{% if current_user.is_authenticated %}
+    {% if current_user.has_role('superuser') %}
+        <span class="pull-right">
+          <a href="{{ url_for('api.download', start_date=start_date, end_date=end_date) }}"
+             class="btn btn-mini btn-primary">Download</a>
+        </span>
+    {% elif not current_user.person %}
+        <span class="pull-right">
+          <a href="{{ url_for('api.add') }}" class="btn btn-mini btn-primary">Add MAC Address</a>
+        </span>
+    {% endif %}
+{% endif %}
 <div id="reportrange" class="report-range">
   <i class="glyphicon glyphicon-calendar fabt fa-calendar"></i>&nbsp;
   <span></span> <b class="caret"></b>

@@ -11,6 +11,7 @@
       {{ current_user.email }}
     {%- endif %}<span class="caret"></span></a>
   <ul class="dropdown-menu" role="menu">
+    <li><a href="{{ url_for('api.edit', person_id=current_user.person.id) }}">My profile</a></li>
     <li><a href="{{ url_for('security.logout') }}">Log out</a></li>
   </ul>
 </div>

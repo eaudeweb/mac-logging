@@ -17,7 +17,9 @@
   <div class="container center-block">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url_for('api.clocking') }}">Hours</a></li>
-      <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+      {% if current_user.is_authenticated and current_user.has_role('superuser') %}
+          <li class="breadcrumb-item"><a href="{{ url_for('api.people') }}">People</a></li>
+      {% endif %}
       <li class="breadcrumb-item"><a href="{{ url_for('api.about') }}">About</a></li>
       {% if current_user.is_authenticated %}
         <div class="breadcrumb-item btn-group pull-right">
@@ -30,6 +32,7 @@
             {%- endif %}<span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href="{{ url_for('api.edit', person_id=current_user.person.id) }}">My profile</a></li>
             <li><a href="{{ url_for('security.logout') }}">Log out</a></li>
           </ul>
         </div>

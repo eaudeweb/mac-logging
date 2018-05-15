@@ -9,7 +9,6 @@ import time
 from datetime import datetime, timedelta
 from flask_script import Manager, prompt, prompt_pass
 from flask_security import SQLAlchemyUserDatastore, utils
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 
 from clocking.app import app
@@ -81,6 +80,14 @@ def check_new_entries():
 
 @manager.command
 def createsuperuser():
+    first_name = prompt('First name')
+    last_name = prompt('Last name')
+    person = Person()
+    person.first_name = first_name
+    person.last_name = last_name
+    db.session.add(person)
+    db.session.commit()
+
     email = prompt('User email')
     if not EMAIL_REGEX.match(email):
         sys.exit('\nCould not create user: Invalid E-Mail addresss')
@@ -93,7 +100,8 @@ def createsuperuser():
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
     user_datastore.create_user(
         email=email,
-        password=utils.encrypt_password(password)
+        password=utils.encrypt_password(password),
+        person_id=person.id
     )
     db.session.commit()
     user_datastore.add_role_to_user(email, 'superuser')

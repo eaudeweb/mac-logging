@@ -22,7 +22,7 @@ class Role(db.Model, RoleMixin):
     users = Column(ForeignKey('user.id'))
 
     def __str__(self):
-        return self.name
+        return self.name.value
 
 
 class User(db.Model, UserMixin):
@@ -35,7 +35,7 @@ class User(db.Model, UserMixin):
 
     roles = relationship('Role', backref=db.backref('users_role'))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.email
 
 

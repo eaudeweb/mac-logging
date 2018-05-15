@@ -1,9 +1,8 @@
 import re
 
-from wtforms import DateField
-
-from wtforms import Form, TextAreaField, IntegerField, validators
+from wtforms import DateField, Form, TextAreaField, IntegerField, validators
 from wtforms.validators import ValidationError
+from flask_security import current_user
 
 from clocking.models import Person, Address, db
 
@@ -31,6 +30,9 @@ class PersonForm(Form):
             db.session.add(person)
         try:
             db.session.commit()
+            if not person_id:   # if it is a create, we link the person to the current user
+                current_user.person_id = person.id
+                db.session.commit()
         except Exception as e:
             print(e)
             db.session.rollback()

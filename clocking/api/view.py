@@ -26,9 +26,6 @@ class ProtectedModelView(sqla.ModelView):
         return False
 
     def _handle_view(self, name, **kwargs):
-        """
-        Override builtin _handle_view in order to redirect users when a view is not accessible.
-        """
         if not self.is_accessible():
             if current_user.is_authenticated:
                 abort(403)
@@ -39,89 +36,110 @@ class ProtectedModelView(sqla.ModelView):
 class PersonAddView(MethodView):
 
     def get(self):
-        form = PersonForm()
-        return render_template('add.html', form=form)
+        if current_user.is_authenticated:
+            form = PersonForm()
+            return render_template('add.html', form=form)
+        else:
+            abort(403)
 
     def post(self):
-        data = {}
-        form = PersonForm(request.form)
-        if form.validate():
-            person = form.save()
-            data['html'] = render_template('bits/mac_form.html', person=person)
-            data['status'] = 'success'
+        if current_user.is_authenticated:
+            data = {}
+            form = PersonForm(request.form)
+            if form.validate():
+                person = form.save()
+                data['html'] = render_template('bits/mac_form.html', person=person)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('bits/form_errors.html', form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
         else:
-            data['html'] = render_template('bits/form_errors.html', form=form)
-            data['status'] = 'error'
-
-        return Response(json.dumps(data), content_type='application/json')
+            abort(403)
 
 
 class MacAddView(MethodView):
 
     def post(self):
-        data = {}
-        form = MacForm(request.form)
-        if form.validate():
-            address = form.save()
-            data['html'] = render_template('bits/mac_listing.html',
-                                           address=address)
-            data['status'] = 'success'
+        if current_user.is_authenticated:
+            data = {}
+            form = MacForm(request.form)
+            if form.validate():
+                address = form.save()
+                data['html'] = render_template('bits/mac_listing.html',
+                                               address=address)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('bits/form_errors.html',
+                                               form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
         else:
-            data['html'] = render_template('bits/form_errors.html',
-                                           form=form)
-            data['status'] = 'error'
-
-        return Response(json.dumps(data), content_type='application/json')
+            abort(403)
 
 
 class MacDeleteView(MethodView):
 
     def get(self, mac_address):
-        address = db.session.query(Address).get(mac_address)
-        return render_template('delete.html', address=address)
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            address = db.session.query(Address).get(mac_address)
+            return render_template('delete.html', address=address)
+        else:
+            abort(403)
 
     def post(self, mac_address):
-        address = db.session.query(Address).get(mac_address)
-        address.deleted = True
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-
-        persons = filter_persons_addresses()
-        return render_template('people.html', persons=persons)
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            address = db.session.query(Address).get(mac_address)
+            address.deleted = True
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            persons = filter_persons_addresses()
+            return render_template('people.html', persons=persons)
+        else:
+            abort(403)
 
 
 class PersonEditView(MethodView):
 
     def get(self, person_id):
-        person = db.session.query(Person).get(person_id)
-        person_form = PersonForm()
-        mac_form = MacForm()
-        return render_template('edit.html', person_form=person_form,
-                               mac_form=mac_form, person=person)
+        if current_user.is_authenticated and (
+                current_user.has_role('superuser') or current_user.person_id == int(person_id)):
+            person = db.session.query(Person).get(person_id)
+            person_form = PersonForm()
+            mac_form = MacForm()
+            return render_template('edit.html', person_form=person_form,
+                                   mac_form=mac_form, person=person)
+        else:
+            abort(403)
 
     def post(self, person_id):
-        data = {}
-        form = PersonForm(request.form)
-        if form.validate():
-            person = form.save(person_id)
-            data['html'] = render_template('bits/person_edit.html',
-                                           person=person)
-            data['status'] = 'success'
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            data = {}
+            form = PersonForm(request.form)
+            if form.validate():
+                person = form.save(person_id)
+                data['html'] = render_template('bits/person_edit.html',
+                                               person=person)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('bits/person_edit.html',
+                                               form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
         else:
-            data['html'] = render_template('bits/person_edit.html',
-                                           form=form)
-            data['status'] = 'error'
-
-        return Response(json.dumps(data), content_type='application/json')
+            abort(403)
 
 
 class PersonListView(MethodView):
 
     def get(self):
-        persons = filter_persons_addresses()
-        return render_template('people.html', persons=persons)
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            persons = filter_persons_addresses()
+            return render_template('people.html', persons=persons)
+        else:
+            abort(403)
 
 
 class PersonClockingView(MethodView):
@@ -143,16 +161,19 @@ class PersonClockingView(MethodView):
 class DownloadView(MethodView):
 
     def get(self, start_date, end_date):
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        days = get_days(start_date, end_date)
-        entries = get_all_entries(days)
-        generate_report(entries)
-        file = send_from_directory(directory=REPORT_DIR,
-                                   filename=REPORT_FILE,
-                                   as_attachment=True)
-        os.remove(REPORT_DIR + REPORT_FILE)
-        return file
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            days = get_days(start_date, end_date)
+            entries = get_all_entries(days)
+            generate_report(entries)
+            file = send_from_directory(directory=REPORT_DIR,
+                                       filename=REPORT_FILE,
+                                       as_attachment=True)
+            os.remove(REPORT_DIR + REPORT_FILE)
+            return file
+        else:
+            abort(403)
 
 
 class AboutView(MethodView):
