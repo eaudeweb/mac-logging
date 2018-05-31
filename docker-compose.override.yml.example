@@ -9,9 +9,6 @@ services:
     volumes:
     - .:/var/local/pontaj/
 
-  cronjobs:
-    container_name: pontaj.cronjobs
-
   postgres:
     volumes:
     - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql

@@ -5,7 +5,9 @@ from datetime import timedelta, date, datetime
 from flask import render_template, request, redirect, Response, send_from_directory, session, url_for, abort
 from flask.views import MethodView
 from flask_admin.contrib import sqla
+from flask_restful import Resource
 from flask_security import current_user
+from sqlalchemy import and_
 
 from clocking.models import db, Person, Entry, Address
 from clocking.api.forms import PersonForm, MacForm, SelectForm, LoginForm
@@ -180,6 +182,53 @@ class AboutView(MethodView):
 
     def get(self):
         return render_template('about.html')
+
+
+class EntryAddResource(Resource):
+
+    def get(self):
+        return {'task': "I'll provide you an implementation soon!!!"}
+
+    def post(self):
+        data = request.get_json()
+        addresses = data['addresses']
+        print(addresses)
+        last_modified = data["time"]
+        last_modified = datetime.strptime(last_modified, "%a %b %d %H:%M:%S %Y")
+        existing_addresses = [address.mac for address in
+                              Address.query.filter(Address.deleted == False).all()]
+        new_entries = []
+        persons_ids = []
+        for address in addresses:
+            if address in existing_addresses:
+                person_details = Person.query.join(Person.addresses).filter_by(
+                    mac=address
+                ).first()
+                if person_details.id in persons_ids:
+                    continue
+                new_entries.append((
+                    address,
+                    person_details.last_name,
+                    person_details.first_name
+                ))
+                persons_ids.append(person_details.id)
+
+        startdate_datetime = last_modified.replace(minute=00, hour=00, second=00)
+
+        for address, last_name, first_name in new_entries:
+            find_any_values = Entry.query.filter(
+                and_(Entry.startdate >= startdate_datetime.date(),
+                     Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
+            ).join(Entry.mac).join(Address.person).filter_by(
+                last_name=last_name,
+                first_name=first_name
+            )
+            if find_any_values.count() == 0:
+                entry = Entry(**{'mac_id': address,
+                                 'startdate': last_modified})
+                db.session.add(entry)
+                db.session.commit()
+        # TODO copy past the add logic
 
 
 def filter_persons_addresses():
