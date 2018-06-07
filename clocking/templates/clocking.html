@@ -58,7 +58,13 @@
               </span>
             </td>
             <td>{{ entry_by_day.startdate.strftime('%H:%M') }}</td>
-            <td>{{ get_enddate(entry_by_day.startdate) }}</td>
+            <td>
+              {% if entry_by_day.enddate %}
+                {{ entry_by_day.enddate.strftime('%H:%M') }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

@@ -64,17 +64,6 @@ def security_context_processor():
     )
 
 
-@app.context_processor
-def utility_processor():
-    def get_enddate(enddate):
-        enddate += timedelta(hours=8)
-        if enddate < datetime.now():
-            return enddate.strftime('%H:%M')
-        else:
-            return '-'
-    return dict(get_enddate=get_enddate)
-
-
 @app.route('/crashme')
 def crashme():
     raise RuntimeError("Crashing as requested by you")

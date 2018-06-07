@@ -184,51 +184,91 @@ class AboutView(MethodView):
         return render_template('about.html')
 
 
-class EntryAddResource(Resource):
+class AddEntryResource(Resource):
 
     def get(self):
         return {'task': "I'll provide you an implementation soon!!!"}
 
     def post(self):
         data = request.get_json()
+        print(data)
         addresses = data['addresses']
-        print(addresses)
         last_modified = data["time"]
-        last_modified = datetime.strptime(last_modified, "%a %b %d %H:%M:%S %Y")
-        existing_addresses = [address.mac for address in
-                              Address.query.filter(Address.deleted == False).all()]
-        new_entries = []
-        persons_ids = []
-        for address in addresses:
-            if address in existing_addresses:
-                person_details = Person.query.join(Person.addresses).filter_by(
-                    mac=address
-                ).first()
-                if person_details.id in persons_ids:
-                    continue
-                new_entries.append((
-                    address,
-                    person_details.last_name,
-                    person_details.first_name
-                ))
-                persons_ids.append(person_details.id)
+        new_entries = get_new_entries(addresses, last_modified)
+        db.session.add_all(new_entries)
+        db.session.commit()
 
-        startdate_datetime = last_modified.replace(minute=00, hour=00, second=00)
 
-        for address, last_name, first_name in new_entries:
-            find_any_values = Entry.query.filter(
-                and_(Entry.startdate >= startdate_datetime.date(),
-                     Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
-            ).join(Entry.mac).join(Address.person).filter_by(
-                last_name=last_name,
-                first_name=first_name
-            )
-            if find_any_values.count() == 0:
-                entry = Entry(**{'mac_id': address,
-                                 'startdate': last_modified})
-                db.session.add(entry)
-                db.session.commit()
-        # TODO copy past the add logic
+class CheckExitTimeResource(Resource):
+
+    def post(self):
+        data = request.get_json()
+        print(data)
+        received_addresses = data['addresses']
+        received_time = data["time"]
+        received_time = datetime.strptime(received_time, "%a %b %d %H:%M:%S %Y")
+        startdate_datetime = received_time.replace(minute=00, hour=00, second=00)
+        entries_today = Entry.query.filter(and_(Entry.startdate >= startdate_datetime.date(),
+                                                Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
+                                           )
+        for entry in entries_today:
+            if entry.mac.mac not in received_addresses and not entry.enddate:
+                if not entry.mac.exittime:
+                    entry.mac.exittime = received_time
+                    db.session.commit()
+                elif entry.mac.exittime + timedelta(hours=1) <= received_time:
+                        entry.enddate = entry.mac.exittime
+                        entry.mac.exittime = None
+                        db.session.commit()
+
+        if received_time.hour >= 21:
+            for entry in entries_today:
+                if not entry.enddate:
+                    if entry.mac.exittime:
+                        entry.enddate = entry.mac.exittime
+                    else:
+                        entry.enddate = received_time
+                    db.session.commit()
+
+
+def get_new_entries(received_addresses, last_modified):
+    last_modified = datetime.strptime(last_modified, "%a %b %d %H:%M:%S %Y")
+    existing_addresses = [address.mac for address in
+                          Address.query.filter(Address.deleted == False).all()]
+    possible_new_entries = []
+    persons_ids = []
+    for address in received_addresses:
+        if address in existing_addresses:
+            person_details = Person.query.join(Person.addresses).filter_by(
+                mac=address
+            ).first()
+            # Skip a person if it was already clocked with another MAC
+            if person_details.id in persons_ids:
+                continue
+            possible_new_entries.append((
+                address,
+                person_details.last_name,
+                person_details.first_name
+            ))
+            persons_ids.append(person_details.id)
+
+    # Filter entries already inserted into DB from today to assure that a person is only clocked once
+    new_entries = []
+    startdate_datetime = last_modified.replace(minute=00, hour=00, second=00)
+    for address, last_name, first_name in possible_new_entries:
+        find_any_values = Entry.query.filter(
+            and_(Entry.startdate >= startdate_datetime.date(),
+                 Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
+        ).join(Entry.mac).join(Address.person).filter_by(
+            last_name=last_name,
+            first_name=first_name
+        )
+        if find_any_values.count() == 0:
+            entry = Entry(**{'mac_id': address,
+                             'startdate': last_modified})
+            new_entries.append(entry)
+
+    return new_entries
 
 
 def filter_persons_addresses():
