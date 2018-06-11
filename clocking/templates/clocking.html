@@ -10,14 +10,18 @@
 <h1 style="display: inline-block;">Working time</h1>
 {% if current_user.is_authenticated %}
     {% if current_user.has_role('superuser') %}
-        <span class="pull-right">
-          <a href="{{ url_for('api.download', start_date=start_date, end_date=end_date) }}"
-             class="btn btn-mini btn-primary">Download</a>
-        </span>
+      <span class="pull-right">
+        <a href="{{ url_for('api.download', start_date=start_date, end_date=end_date) }}"
+           class="btn btn-mini btn-primary">Download</a>
+      </span>
     {% elif not current_user.person %}
-        <span class="pull-right">
-          <a href="{{ url_for('api.add') }}" class="btn btn-mini btn-primary">Add MAC Address</a>
-        </span>
+      <span class="pull-right">
+        <a href="{{ url_for('api.add') }}" class="btn btn-mini btn-primary">Add MAC Address</a>
+      </span>
+    {% else %}
+      <span class="pull-right">
+        <a href="{{ url_for('api.manual_clocking') }}" class="btn btn-mini btn-primary">Clock me!</a>
+      </span>
     {% endif %}
 {% endif %}
 <div id="reportrange" class="report-range">

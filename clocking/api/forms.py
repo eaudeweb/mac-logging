@@ -1,10 +1,11 @@
 import re
 
-from wtforms import DateField, Form, TextAreaField, IntegerField, validators
+from datetime import datetime
+from wtforms import DateField, Form, TextAreaField, IntegerField, DateTimeField, validators
 from wtforms.validators import ValidationError
 from flask_security import current_user
 
-from clocking.models import Person, Address, db
+from clocking.models import Person, Address, Entry, db
 
 
 def validate_mac_address(form, field):
@@ -55,9 +56,9 @@ class MacAddressField(TextAreaField):
 
 class MacForm(Form):
     mac = MacAddressField('MAC Address',
-                              validators=[validators.required(),
-                                          validate_mac_address,
-                                          validate_mac_address_unique_add])
+                          validators=[validators.required(),
+                                      validate_mac_address,
+                                      validate_mac_address_unique_add])
     device = TextAreaField('Device', validators=[validators.required()])
     person = IntegerField('Person', validators=[validators.required()])
 
@@ -82,6 +83,28 @@ class SelectForm(Form):
                          validators=[validators.required()])
 
 
-class LoginForm(Form):
-    username = TextAreaField()
-    password = TextAreaField()
+class ManualEntryForm(Form):
+    mac = MacAddressField('MAC Address',
+                          validators=[validators.required(),
+                                      validate_mac_address])
+    time_in = DateTimeField('Time in', format='%H:%M')
+    time_out = DateTimeField('Time out', format='%H:%M')
+
+    def save(self):
+        now = datetime.now()
+        startdate = now.replace(hour=self.data['time_in'].hour,
+                                minute=self.data['time_in'].minute,
+                                second=self.data['time_in'].second)
+        enddate = now.replace(hour=self.data['time_out'].hour,
+                              minute=self.data['time_out'].minute,
+                              second=self.data['time_out'].second)
+        entry = Entry(mac_id=self.data['mac'],
+                      startdate=startdate,
+                      enddate=enddate)
+        db.session.add(entry)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+        return entry

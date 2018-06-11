@@ -10,7 +10,7 @@ from flask_security import current_user
 from sqlalchemy import and_
 
 from clocking.models import db, Person, Entry, Address
-from clocking.api.forms import PersonForm, MacForm, SelectForm, LoginForm
+from clocking.api.forms import PersonForm, MacForm, SelectForm, ManualEntryForm
 from clocking.api.generate_report import generate_report
 
 from instance.settings import REPORT_DIR, REPORT_FILE
@@ -184,6 +184,36 @@ class AboutView(MethodView):
         return render_template('about.html')
 
 
+class ManualClockingView(MethodView):
+
+    def get(self):
+        if current_user.is_authenticated:
+            addresses = current_user.person.addresses
+            for address in addresses:
+                now = datetime.now()
+                startdate_datetime = now.replace(minute=00, hour=00, second=00)
+                entries_today = Entry.query.filter(and_(Entry.startdate >= startdate_datetime.date(),
+                                                        Entry.startdate <= startdate_datetime.date() + timedelta(days=1),
+                                                        Entry.mac_id == address.mac)
+                                                   )
+                if len(entries_today.all()) != 0:
+                    return render_template('view_manual_clocking.html', entries=entries_today)
+            return render_template('add_manual_clocking.html', addresses=addresses, form=None)
+        else:
+            abort(403)
+
+    def post(self):
+        if current_user.is_authenticated:
+            form = ManualEntryForm(request.form)
+            if form.validate():
+                entry = form.save()
+                return redirect(url_for('api.clocking'))
+            else:
+                return render_template('add_manual_clocking.html', form=form)
+        else:
+            abort(403)
+
+
 class AddEntryResource(Resource):
 
     def get(self):
@@ -211,6 +241,7 @@ class CheckExitTimeResource(Resource):
         entries_today = Entry.query.filter(and_(Entry.startdate >= startdate_datetime.date(),
                                                 Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
                                            )
+
         for entry in entries_today:
             if entry.mac.mac not in received_addresses and not entry.enddate:
                 if not entry.mac.exittime:

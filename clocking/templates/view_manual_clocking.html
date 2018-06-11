@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="row">
+    <h1>
+      <p class="col-sm-12">Manual Clocking</p>
+    </h1>
+  </div>
+  <div id="entry_details">
+    {% for entry in entries %}
+      <div class="well">
+        <b>Device clocked</b>:
+        <span class="label label-
+          {%- if entry.mac.device == 'mobile' -%}
+            primary
+          {% elif entry.mac.device == 'desktop' -%}
+            warning
+          {%- else -%}
+            success
+          {%- endif -%}">
+          {{ entry.mac.device }}
+        </span>
+      </div>
+      <div class="well">
+        <b>Time in</b>: {{ entry.startdate.strftime('%H:%M') }}
+      </div>
+      <div class="well">
+        <b>Time out</b>:
+        {% if entry.enddate %}
+          {{ entry.enddate.strftime('%H:%M') }}
+        {% else %}
+          -
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
