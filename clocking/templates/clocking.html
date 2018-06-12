@@ -39,10 +39,11 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Device</th>
-          <th>In</th>
-          <th>Out</th>
+          <th style="width: 30%">Name</th>
+          <th style="width: 30%">Device</th>
+          <th style="width: 18%">In</th>
+          <th style="width: 18%">Out</th>
+          <th style="width: 4%"></th>
         </tr>
       </thead>
       <tbody>
@@ -67,6 +68,12 @@
                 {{ entry_by_day.enddate.strftime('%H:%M') }}
               {% else %}
                 -
+              {% endif %}
+            </td>
+            <td>
+              {% if entry_by_day.comment %}
+                <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{{ entry_by_day.comment }}">
+                </span>
               {% endif %}
             </td>
           </tr>

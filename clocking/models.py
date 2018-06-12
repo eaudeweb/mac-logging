@@ -78,6 +78,7 @@ class Entry(db.Model):
     mac_id = Column(ForeignKey('address.mac'))
     startdate = Column(DateTime, nullable=False)
     enddate = Column(DateTime)
+    comment = Column(db.Text)
 
     mac = relationship('Address',
                        backref=db.backref('entries', lazy='dynamic'))
