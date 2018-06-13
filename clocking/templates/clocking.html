@@ -39,10 +39,11 @@
     <table class="table">
       <thead>
         <tr>
-          <th style="width: 30%">Name</th>
-          <th style="width: 30%">Device</th>
-          <th style="width: 18%">In</th>
-          <th style="width: 18%">Out</th>
+          <th style="width: 23%">Name</th>
+          <th style="width: 20%">Device</th>
+          <th style="width: 23%">Departament</th>
+          <th style="width: 15%">In</th>
+          <th style="width: 15%">Out</th>
           <th style="width: 4%"></th>
         </tr>
       </thead>
@@ -62,6 +63,7 @@
                 {{ entry_by_day.mac.device }}
               </span>
             </td>
+            <td>{{ entry_by_day.mac.person.dept }}</td>
             <td>{{ entry_by_day.startdate.strftime('%H:%M') }}</td>
             <td>
               {% if entry_by_day.enddate %}

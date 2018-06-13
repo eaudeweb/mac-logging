@@ -9,7 +9,7 @@ from flask_restful import Resource
 from flask_security import current_user
 from sqlalchemy import and_
 
-from clocking.models import db, Person, Entry, Address
+from clocking.models import db, Person, Entry, Address, Departament
 from clocking.api.forms import PersonForm, MacForm, SelectForm, ManualEntryForm
 from clocking.api.generate_report import generate_report
 
@@ -40,7 +40,8 @@ class PersonAddView(MethodView):
     def get(self):
         if current_user.is_authenticated:
             form = PersonForm()
-            return render_template('add.html', form=form)
+            depts = Departament.query.all()
+            return render_template('add.html', form=form, depts=depts)
         else:
             abort(403)
 
@@ -117,7 +118,8 @@ class PersonEditView(MethodView):
             abort(403)
 
     def post(self, person_id):
-        if current_user.is_authenticated and current_user.has_role('superuser'):
+        if current_user.is_authenticated and (
+                current_user.has_role('superuser') or current_user.person_id == int(person_id)):
             data = {}
             form = PersonForm(request.form)
             if form.validate():

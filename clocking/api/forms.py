@@ -5,7 +5,7 @@ from wtforms import DateField, Form, TextAreaField, IntegerField, DateTimeField,
 from wtforms.validators import ValidationError
 from flask_security import current_user
 
-from clocking.models import Person, Address, Entry, db
+from clocking.models import Person, Address, Entry, Departament, db
 
 
 def validate_mac_address(form, field):
@@ -20,15 +20,26 @@ class PersonForm(Form):
                               validators=[validators.required()])
     first_name = TextAreaField('First name',
                                validators=[validators.required()])
+    dept = IntegerField('dept',
+                        validators=[validators.required()])
 
     def save(self, person_id=None):
         if person_id:
             person = db.session.query(Person).filter_by(id=person_id)
-            person.update(self.data)
+            dept = Departament.query.get(self.data['dept'])
+            person.update({
+                'id': person_id,
+                'first_name': self.data['first_name'],
+                'last_name': self.data['last_name'],
+                'dept_id': dept.id
+            })
             person = person.first()
         else:
-            person = Person(**self.data)
+            dept = Departament.query.get(self.data['dept'])
+            person = Person(first_name=self.data['first_name'], last_name=self.data['last_name'],
+                            dept=dept)
             db.session.add(person)
+
         try:
             db.session.commit()
             if not person_id:   # if it is a create, we link the person to the current user

@@ -1,7 +1,7 @@
 
 function add_mac_address() {
-    console.log('click')
-    $('#mac_address').toggle();
+  console.log('click');
+  $('#mac_address').toggle();
 }
 
 
@@ -39,7 +39,8 @@ $('#post_add_person_form').on("submit", function (event) {
         type: "POST",
         data: {
             last_name: $('#last_name').val(),
-            first_name: $('#first_name').val()
+            first_name: $('#first_name').val(),
+            dept: $('#dept option:selected').val()
         },
         success : function(data) {
             if (data['status'] == 'error') {
@@ -65,13 +66,15 @@ function post_edit_person(event) {
     event.preventDefault();
 
     var person_id = $('#post_edit_person_form').data('person-id');
+    $('#dept option:selected').val();
 
     $.ajax({
         url: "/edit/" + person_id,
         type: "POST",
         data: {
             last_name: $('#last_name').val(),
-            first_name: $('#first_name').val()
+            first_name: $('#first_name').val(),
+            dept: $('#dept option:selected').val()
         },
         success : function(data) {
             if (data['status'] == 'error') {

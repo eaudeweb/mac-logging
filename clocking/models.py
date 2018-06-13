@@ -66,7 +66,11 @@ class Person(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     last_name = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=False)
+    dept_id = Column(ForeignKey('departament.id'))
+
     user = relationship("User", uselist=False, backref="person")
+    dept = relationship('Departament',
+                        backref=db.backref('persons', lazy='dynamic'))
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name
@@ -82,3 +86,12 @@ class Entry(db.Model):
 
     mac = relationship('Address',
                        backref=db.backref('entries', lazy='dynamic'))
+
+
+class Departament(db.Model):
+    __tablename__ = 'departament'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(db.String(255), unique=True)
+
+    def __str__(self):
+        return self.name
