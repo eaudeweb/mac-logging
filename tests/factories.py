@@ -1,6 +1,6 @@
 from factory.alchemy import SQLAlchemyModelFactory
 
-from clocking.models import db, Person, Address, User, Role
+from clocking.models import db, Person, Address, User, Role, Departament
 
 
 class AddressFactory(SQLAlchemyModelFactory):
@@ -21,11 +21,31 @@ class PersonFactory(SQLAlchemyModelFactory):
         model = Person
         sqlalchemy_session = db.session
 
+    id = 1
     last_name = 'l'
     first_name = 'f'
 
 
-class RoleFactory(SQLAlchemyModelFactory):
+class RoleAdminFactory(SQLAlchemyModelFactory):
+
+    class Meta:
+        model = Role
+        sqlalchemy_session = db.session
+
+    name = 'superuser'
+
+
+class DepartamentFactory(SQLAlchemyModelFactory):
+
+    class Meta:
+        model = Departament
+        sqlalchemy_session = db.session
+
+    id = 1
+    name = 'Departament'
+
+
+class RoleUserFactory(SQLAlchemyModelFactory):
 
     class Meta:
         model = Role
@@ -39,7 +59,8 @@ class UserFactory(SQLAlchemyModelFactory):
         model = User
         sqlalchemy_session = db.session
 
-    email = 'email@example.com'
+    email = 'example@email.com'
     password = 'password'
+    person_id = None
     active = True
     roles = []
