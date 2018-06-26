@@ -72,12 +72,13 @@ class MacForm(Form):
                                       validate_mac_address_unique_add])
     device = TextAreaField('Device', validators=[validators.required()])
     person = IntegerField('Person', validators=[validators.required()])
+    priority = TextAreaField('Priority', validators=[validators.required()])
 
     def save(self):
         person = self.data.pop('person')
         person = Person.query.get(person)
         address = Address(person=person, mac=self.data['mac'],
-                          device=self.data['device'])
+                          device=self.data['device'], priority=self.data['priority'])
         db.session.add(address)
         try:
             db.session.commit()

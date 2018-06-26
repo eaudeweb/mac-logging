@@ -7,14 +7,15 @@ function add_mac_address() {
 
 function submit_mac_address(event) {
     event.preventDefault();
-
     $.ajax({
         url: "/add_mac",
         type: "POST",
         data: {
             mac: $('#mac').val(),
             device: $('#device option:selected').val(),
-            person: $('#person_id').val()
+            person: $('#person_id').val(),
+            priority: $('#priority option:selected').val()
+
         },
         success : function(data) {
             if (data['status'] == 'error') {

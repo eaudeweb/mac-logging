@@ -218,17 +218,38 @@ class ManualClockingView(MethodView):
 
 class AddEntryResource(Resource):
 
-    def get(self):
-        return {'task': "I'll provide you an implementation soon!!!"}
-
     def post(self):
         data = request.get_json()
         print(data)
-        addresses = data['addresses']
+        received_addresses = data['addresses']
         last_modified = data["time"]
-        new_entries = get_new_entries(addresses, last_modified)
-        db.session.add_all(new_entries)
-        db.session.commit()
+        last_modified = datetime.strptime(last_modified, "%a %b %d %H:%M:%S %Y")
+        for address in received_addresses:
+            address_obj = Address.query.get(address)
+            if Address.query.get(address):
+                person = address_obj.person
+                startdate = last_modified.replace(minute=00, hour=00, second=00).date()
+                enddate = startdate + timedelta(days=1)
+                entries_today = Entry.query.filter(
+                    and_(Entry.startdate >= startdate,
+                         Entry.startdate <= enddate)
+                ).join(Entry.mac).join(Address.person).filter_by(
+                    last_name=person.last_name,
+                    first_name=person.first_name
+                )
+                if entries_today.count() == 0:
+                    entry = Entry(**{'mac_id': address,
+                                     'startdate': last_modified})
+                    db.session.add(entry)
+                    db.session.commit()
+                elif entries_today.count() == 1:
+                    entry = entries_today.first()
+                    if address_obj.priority.code < entry.mac.priority.code:
+                        db.session.delete(entry)
+                        new_entry = Entry(**{'mac_id': address,
+                                     'startdate': last_modified})
+                        db.session.add(new_entry)
+                        db.session.commit()
 
 
 class CheckExitTimeResource(Resource):
@@ -262,46 +283,6 @@ class CheckExitTimeResource(Resource):
                     else:
                         entry.enddate = received_time
                     db.session.commit()
-
-
-def get_new_entries(received_addresses, last_modified):
-    last_modified = datetime.strptime(last_modified, "%a %b %d %H:%M:%S %Y")
-    existing_addresses = [address.mac for address in
-                          Address.query.filter(Address.deleted == False).all()]
-    possible_new_entries = []
-    persons_ids = []
-    for address in received_addresses:
-        if address in existing_addresses:
-            person_details = Person.query.join(Person.addresses).filter_by(
-                mac=address
-            ).first()
-            # Skip a person if it was already clocked with another MAC
-            if person_details.id in persons_ids:
-                continue
-            possible_new_entries.append((
-                address,
-                person_details.last_name,
-                person_details.first_name
-            ))
-            persons_ids.append(person_details.id)
-
-    # Filter entries already inserted into DB from today to assure that a person is only clocked once
-    new_entries = []
-    startdate_datetime = last_modified.replace(minute=00, hour=00, second=00)
-    for address, last_name, first_name in possible_new_entries:
-        find_any_values = Entry.query.filter(
-            and_(Entry.startdate >= startdate_datetime.date(),
-                 Entry.startdate <= startdate_datetime.date() + timedelta(days=1))
-        ).join(Entry.mac).join(Address.person).filter_by(
-            last_name=last_name,
-            first_name=first_name
-        )
-        if find_any_values.count() == 0:
-            entry = Entry(**{'mac_id': address,
-                             'startdate': last_modified})
-            new_entries.append(entry)
-
-    return new_entries
 
 
 def filter_persons_addresses():
