@@ -4,7 +4,7 @@
     <h3 class="col-sm-8">
       <span>People</span>
       <span class="pull-right">
-        <a href="{{ url_for('api.add') }}">
+        <a href="{{ url_for('api.admin_add_user') }}">
           <button type="button" class="btn btn-mini btn-primary">Add person</button>
         </a>
       </span>
@@ -24,13 +24,13 @@
           <tr>
             {% if person.addresses.count() > 0 %}
               <td rowspan="{{ person.addresses.count() }}">
-                <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                <a href="{{ url_for('api.admin_edit', person_id=person.id) }}">
                   {{ person.first_name }} {{ person.last_name }}
                 </a>
               </td>
             {% else %}
               <td rowspan="1">
-                <a href="{{ url_for('api.edit', person_id=person.id) }}">
+                <a href="{{ url_for('api.admin_edit', person_id=person.id) }}">
                   {{ person.first_name }} {{ person.last_name }}
                 </a>
               </td>

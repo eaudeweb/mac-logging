@@ -1,8 +1,50 @@
+$('#admin_add_user_form').on("submit", function (event) {
+    event.preventDefault();
+    $.ajax({
+        url: "/admin_add_user",
+        type: "POST",
+        data: {
+            email: $('#email').val(),
+            password: $('#password').val(),
+            confirm_password: $('#confirm_password').val()
+        },
+        success : function(data) {
+            if (data['status'] == 'error') {
+                $('#user_form_errors').html(data['html']);
+            }
+            else {
+                $('#admin_user').html(data['html']);
+            }
+        }
+    });
+});
+
+$('#admin_add_person_form').on("submit", function (event) {
+    event.preventDefault();
+    $.ajax({
+        url: "/admin_add_person",
+        type: "POST",
+        data: {
+            last_name: $('#last_name').val(),
+            first_name: $('#first_name').val(),
+            dept: $('#dept option:selected').val(),
+            user_id: $('#user_id').val()
+        },
+        success : function(data) {
+            if (data['status'] == 'error') {
+                $('#person_form_errors').html(data['html']);
+            }
+            else {
+                $('#add_mac_address_button').bind('click', add_mac_address);
+                $('#admin_create_person').html(data['html']);
+            }
+        }
+    });
+});
 
 function add_mac_address() {
   $('#mac_address').toggle();
 }
-
 
 function submit_mac_address(event) {
     event.preventDefault();
@@ -30,29 +72,9 @@ function submit_mac_address(event) {
     });
 };
 
-$('#post_add_person_form').on("submit", function (event) {
-    event.preventDefault();
+$('#add_mac_address_button').bind('click', add_mac_address);
 
-    $.ajax({
-        url: "/add_person",
-        type: "POST",
-        data: {
-            last_name: $('#last_name').val(),
-            first_name: $('#first_name').val(),
-            dept: $('#dept option:selected').val()
-        },
-        success : function(data) {
-            if (data['status'] == 'error') {
-                $('#person_form_errors').html(data['html']);
-            }
-            else {
-                $('#person').html(data['html']);
-                $('#add_mac_address_button').bind('click', add_mac_address);
-                $('#post_add_mac_form').bind('submit', submit_mac_address);
-            }
-        },
-    });
-});
+$('#post_add_mac_form').bind('submit', submit_mac_address);
 
 function toggle_edit() {
     $('#post_edit_person_form').toggle();
@@ -68,7 +90,7 @@ function post_edit_person(event) {
     $('#dept option:selected').val();
 
     $.ajax({
-        url: "/edit/" + person_id,
+        url: "/admin_edit/" + person_id,
         type: "POST",
         data: {
             last_name: $('#last_name').val(),
@@ -91,7 +113,3 @@ function post_edit_person(event) {
 }
 
 $('#post_edit_person_form').bind('submit', post_edit_person);
-
-$('#add_mac_address_button').bind('click', add_mac_address);
-
-$('#post_add_mac_form').bind('submit', submit_mac_address);

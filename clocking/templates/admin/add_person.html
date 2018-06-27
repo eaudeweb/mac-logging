@@ -1,0 +1,62 @@
+<div id="admin_create_person">
+  <h2>Create Person</h2>
+  <div class="alert alert-success" id="alert-success">
+    User succesfully created!
+  </div>
+
+  <div class="well"><b>Name</b>: {{ user.email }} </div>
+
+  <div id="admin_person">
+    <form class="form-horizontal" id="admin_add_person_form" method="post">
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="first_name">First name</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="first_name" name="first_name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="last_name">Last name</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="last_name" name="last_name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="device">Departament</label>
+        <div class="col-sm-4">
+          <select class="form-control" name="dept" id="dept">
+            {% for dept in depts %}
+              <option value="{{ dept.id }}">{{ dept.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4 col-sm-push-2">
+          <input type="hidden" value="{{ user.id }}" id="user_id">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-6">
+          <button type="submit" class="btn btn-mini btn-primary">Save changes
+          </button>
+        </div>
+      </div>
+
+    </form>
+    <div class="margin-top" id="person_form_errors"></div>
+  </div>
+</div>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_person_create.js')}}"></script>
+<script>
+$("#alert-success").fadeTo(2000, 500).slideUp(500, function(){
+    $("#alert-success").slideUp(500);
+});
+</script>
+{% endblock %}

@@ -38,7 +38,7 @@ def test_people(client):
 def test_add_person(client):
     login_admin(client)
     dept = DepartamentFactory()
-    resp = client.post(url_for('api.add'),
+    resp = client.post(url_for('api.add_person'),
                        dict(last_name='l', first_name='f', dept=dept.id))
     assert resp.status_code == 200
     assert len(Person.query.all()) == 1

@@ -3,7 +3,8 @@ from flask_script import Manager
 from flask_restful import Api, Resource, url_for
 
 from clocking.api.view import (MacAddView, PersonAddView, PersonEditView, PersonListView, PersonClockingView, AboutView,
-                               MacDeleteView, DownloadView, AddEntryResource, CheckExitTimeResource, ManualClockingView)
+                               MacDeleteView, DownloadView, AddEntryResource, CheckExitTimeResource, ManualClockingView,
+                               AdminPersonAddView, AdminUserAddView, AdminPersonEditView)
 
 api = Blueprint('api', __name__)
 api_manager = Manager()
@@ -11,11 +12,14 @@ rest_api = Api(api)
 
 api.add_url_rule('/', view_func=PersonClockingView.as_view('clocking'))
 api.add_url_rule('/about', view_func=AboutView.as_view('about'))
-api.add_url_rule('/add', view_func=PersonAddView.as_view('add'))
+api.add_url_rule('/add_person', view_func=PersonAddView.as_view('add_person'))
 api.add_url_rule('/add_mac', view_func=MacAddView.as_view('add_mac'))
+api.add_url_rule('/admin_add_person', view_func=AdminPersonAddView.as_view('admin_add_person'))
+api.add_url_rule('/admin_add_user', view_func=AdminUserAddView.as_view('admin_add_user'))
 api.add_url_rule('/delete_mac/<mac_address>', view_func=MacDeleteView.as_view('delete_mac'))
 api.add_url_rule('/download/<start_date>/<end_date>', view_func=DownloadView.as_view('download'))
 api.add_url_rule('/edit/<person_id>', view_func=PersonEditView.as_view('edit'))
+api.add_url_rule('/admin_edit/<person_id>', view_func=AdminPersonEditView.as_view('admin_edit'))
 api.add_url_rule('/manual-clocking', view_func=ManualClockingView.as_view('manual_clocking'))
 api.add_url_rule('/people', view_func=PersonListView.as_view('people'))
 rest_api.add_resource(AddEntryResource, '/add-new-entries')

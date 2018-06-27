@@ -9,8 +9,10 @@ from flask_restful import Resource
 from flask_security import current_user
 from sqlalchemy import and_
 
-from clocking.models import db, Person, Entry, Address, Departament
-from clocking.api.forms import PersonForm, MacForm, SelectForm, ManualEntryForm
+from clocking.models import db, Person, Entry, Address, Departament, User, Role
+from clocking.api.forms import (PersonForm, MacForm, SelectForm, ManualEntryForm, AdminPersonForm, AdminUserForm,
+                                AdminPersonEditForm)
+
 from clocking.api.generate_report import generate_report
 
 from instance.settings import REPORT_DIR, REPORT_FILE
@@ -41,7 +43,7 @@ class PersonAddView(MethodView):
         if current_user.is_authenticated:
             form = PersonForm()
             depts = Departament.query.all()
-            return render_template('add.html', form=form, depts=depts)
+            return render_template('add_person.html', form=form, depts=depts)
         else:
             abort(403)
 
@@ -55,6 +57,78 @@ class PersonAddView(MethodView):
                 data['status'] = 'success'
             else:
                 data['html'] = render_template('bits/form_errors.html', form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
+        else:
+            abort(403)
+
+
+class AdminUserAddView(MethodView):
+
+    def get(self):
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            form = AdminUserForm()
+            return render_template('admin/add_user.html', form=form)
+        else:
+            abort(403)
+
+    def post(self):
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            data = {}
+            form = AdminUserForm(request.form)
+            if form.validate():
+                user = form.save()
+                depts = Departament.query.all()
+                data['html'] = render_template('admin/add_person.html', user=user, depts=depts)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('bits/form_errors.html', form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
+        else:
+            abort(403)
+
+
+class AdminPersonAddView(MethodView):
+
+    def post(self):
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            data = {}
+            form = AdminPersonForm(request.form)
+            if form.validate():
+                person = form.save()
+                data['html'] = render_template('admin/user_person_detail.html', person=person)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('bits/form_errors.html', form=form)
+                data['status'] = 'error'
+            return Response(json.dumps(data), content_type='application/json')
+        else:
+            abort(403)
+
+
+class AdminPersonEditView(MethodView):
+
+    def get(self, person_id):
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            person = db.session.query(Person).get(person_id)
+            person_form = PersonForm()
+            mac_form = MacForm()
+            return render_template('admin/admin_edit.html', person_form=person_form,
+                                   mac_form=mac_form, person=person)
+        else:
+            abort(403)
+
+    def post(self, person_id):
+        if current_user.is_authenticated and current_user.has_role('superuser'):
+            data = {}
+            form = AdminPersonEditForm(request.form)
+            if form.validate():
+                person = form.save(person_id)
+                data['html'] = render_template('admin/admin_person_edit.html', person=person)
+                data['status'] = 'success'
+            else:
+                data['html'] = render_template('admin/admin_person_edit.html', form=form)
                 data['status'] = 'error'
             return Response(json.dumps(data), content_type='application/json')
         else:

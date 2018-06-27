@@ -16,7 +16,7 @@
       </span>
     {% elif not current_user.person %}
       <span class="pull-right">
-        <a href="{{ url_for('api.add') }}" class="btn btn-mini btn-primary">Add MAC Address</a>
+        <a href="{{ url_for('api.add_person') }}" class="btn btn-mini btn-primary">Add MAC Address</a>
       </span>
     {% else %}
       <span class="pull-right">

@@ -1,11 +1,19 @@
 import re
 
 from datetime import datetime
-from wtforms import DateField, Form, TextAreaField, IntegerField, DateTimeField, validators
+from wtforms import DateField, Form, TextAreaField, IntegerField, DateTimeField, PasswordField, validators
 from wtforms.validators import ValidationError
-from flask_security import current_user
+from flask_security import SQLAlchemyUserDatastore, current_user, utils
 
-from clocking.models import Person, Address, Entry, Departament, db
+from clocking.models import Person, Address, Entry, Departament, User, Role, db
+
+
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+
+def validate_mac_address_unique_add(form, field):
+    if field.data is not u'':
+        if Address.query.filter(Address.mac == field.data).count() > 0:
+            raise ValidationError('MAC Address already exists.')
 
 
 def validate_mac_address(form, field):
@@ -15,13 +23,31 @@ def validate_mac_address(form, field):
             raise ValidationError('MAC Address invalid.')
 
 
-class PersonForm(Form):
+def validate_email_unique(form, field):
+    if field.data is not u'':
+        if User.query.filter(User.email == field.data).count () > 0:
+            raise ValidationError('Email already exists.')
+
+
+def validate_email_format(form, field):
+    if field.data is not u'':
+        if not EMAIL_REGEX.match(field.data):
+            raise ValidationError('Invalid E-Mail addresss format.')
+
+
+#TODO check if confirm_password is the same as password
+
+
+class BasePersonForm(Form):
     last_name = TextAreaField('Last name',
                               validators=[validators.required()])
     first_name = TextAreaField('First name',
                                validators=[validators.required()])
     dept = IntegerField('dept',
                         validators=[validators.required()])
+
+
+class PersonForm(BasePersonForm, Form):
 
     def save(self, person_id=None):
         if person_id:
@@ -39,23 +65,76 @@ class PersonForm(Form):
             person = Person(first_name=self.data['first_name'], last_name=self.data['last_name'],
                             dept=dept)
             db.session.add(person)
-
         try:
-            db.session.commit()
-            if not person_id:   # if it is a create, we link the person to the current user
+            if person_id:
+                db.session.commit()
+            else:   # else, if it is a create, we link the person to the current user
                 current_user.person_id = person.id
                 db.session.commit()
         except Exception as e:
             print(e)
             db.session.rollback()
-
         return person
 
 
-def validate_mac_address_unique_add(form, field):
-    if field.data is not u'':
-        if Address.query.filter(Address.mac == field.data).count() > 0:
-            raise ValidationError('MAC Address already exists.')
+class AdminUserForm(Form):
+    email = TextAreaField('Email',
+                          validators=[validators.required(),
+                                      validate_email_unique,
+                                      validate_email_format])
+    password = PasswordField('Password',
+                             validators=[validators.required()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[validators.required()])
+
+    def save(self):
+        user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+        user = user_datastore.create_user(
+            email=self.data['email'],
+            password=utils.encrypt_password(self.data['password'])
+        )
+        db.session.commit()
+        user_datastore.add_role_to_user(self.data['email'], 'user')
+        db.session.commit()
+        return user
+
+
+class AdminPersonForm(BasePersonForm, Form):
+    user_id = IntegerField('User', validators=[validators.required()])
+
+    def save(self):
+        dept = Departament.query.get(self.data['dept'])
+        person = Person(first_name=self.data['first_name'], last_name=self.data['last_name'],
+                        dept=dept)
+        db.session.add(person)
+        user = User.query.get(self.data['user_id'])
+        user.person_id = person.id
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+        return person
+
+
+class AdminPersonEditForm(BasePersonForm, Form):
+
+    def save(self, person_id):
+        person = db.session.query(Person).filter_by(id=person_id)
+        dept = Departament.query.get(self.data['dept'])
+        person.update({
+            'id': person_id,
+            'first_name': self.data['first_name'],
+            'last_name': self.data['last_name'],
+            'dept_id': dept.id
+        })
+        person = person.first()
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+        return person
 
 
 class MacAddressField(TextAreaField):
@@ -84,7 +163,6 @@ class MacForm(Form):
             db.session.commit()
         except:
             db.session.rollback()
-
         return address
 
 
@@ -118,5 +196,4 @@ class ManualEntryForm(Form):
             db.session.commit()
         except:
             db.session.rollback()
-
         return entry
